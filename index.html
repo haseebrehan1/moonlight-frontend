@@ -635,9 +635,10 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 <script>
 // ══════════════════════════════════════════════════════
 //  MOONLIGHT ACCESSORIES — FRONTEND ENGINE
-//  Backend-ready: swap PRODUCTS with fetch('/api/products')
-//  Cart: swap addToCart() body with POST '/api/cart'
+//  Connected to: http://localhost:5000/api/v1
 // ══════════════════════════════════════════════════════
+
+const API_BASE = 'http://localhost:5000/api/v1';
 
 const LOGO_URI = "data:image/jpeg;base64,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";
 
@@ -651,59 +652,38 @@ const SHADES = {
   hazelHL: { name:"Hazel + Gold Highlight", c1:"#7a5c28", c2:"#b89048", hl:"#F5E090", swatchBg:"linear-gradient(135deg,#9b7535 50%,#F5E090 50%)" },
 };
 
-// ── PRODUCT DATA ─────────────────────────────────────
-// Backend-ready shape: matches REST API response structure
-const PRODUCTS = [
-  { id:"p1",  slug:"straight-03-black",   name:"Straight 03-Piece", category:"straight",  type:"straight",  badge:"Bestseller", price:3374, stars:5, reviews:5,  featured:false, defaultShade:"black",
-    desc:"Premium synthetic straight hair extension set of 3 pieces. Blends naturally for added volume and length.",
-    features:["3-piece clip-in set","Straight texture","Heat-resistant synthetic fiber","Secure claw clip attachment"],
-    variants:[{shade:"black",inStock:true},{shade:"choco",inStock:true},{shade:"hazel",inStock:true},{shade:"blackHL",inStock:true},{shade:"chocoHL",inStock:true},{shade:"hazelHL",inStock:false}] },
+// ── PRODUCT DATA (loaded from API) ───────────────────
+let PRODUCTS = [];
 
-  { id:"p2",  slug:"straight-03-hazel",   name:"Straight 03-Piece", category:"straight",  type:"straight",  badge:null,         price:3374, stars:4, reviews:2,  featured:false, defaultShade:"hazel",
-    desc:"Warm hazel olive tone straight extensions for a sun-kissed dimensional look.",
-    features:["3-piece clip-in set","Hazel Olive shade","Natural sheen finish","Easy to apply"],
-    variants:[{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true},{shade:"choco",inStock:true}] },
-
-  { id:"p3",  slug:"blowdry-black",       name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:"New",         price:4499, stars:5, reviews:0,  featured:false, defaultShade:"black",
-    desc:"Voluminous blow-dry style extension for instant glamour. Adds massive body to any look.",
-    features:["Blow-dry voluminous style","Full body & bounce","Silky synthetic fiber","Clip-in attachment"],
-    variants:[{shade:"black",inStock:true},{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"choco",inStock:true}] },
-
-  { id:"p4",  slug:"blowdry-hazel",       name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:null,         price:4499, stars:4, reviews:0,  featured:false, defaultShade:"hazel",
-    desc:"Hazel blow-dry extensions with beautiful bouncy volume and warm tones.",
-    features:["Blow-dry style","Hazel Olive shade","Bouncy full volume","Soft silky texture"],
-    variants:[{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true}] },
-
-  { id:"p5",  slug:"blowdry-hazel-hl",   name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:"New",         price:4499, stars:5, reviews:0,  featured:true,  defaultShade:"hazelHL",
-    desc:"Hazel with olive gold highlights — multi-tonal blow-dry style for a dimensional, glamorous finish.",
-    features:["Blow-dry voluminous style","Hazel + Gold highlights","Multi-tonal dimension","Premium finish"],
-    variants:[{shade:"hazelHL",inStock:true},{shade:"hazel",inStock:true},{shade:"chocoHL",inStock:true}] },
-
-  { id:"p6",  slug:"straight-full-set",  name:"Straight Full Set",  category:"straight",  type:"straight",  badge:"Premium",    price:6637, stars:5, reviews:3,  featured:true,  defaultShade:"choco",
-    desc:"Our premium full straight extension collection. Available in multiple shades with ombre finish — salon quality at home.",
-    features:["Complete full extension set","Multiple shades available","Ombre gradient finish","Salon-quality synthetic fiber"],
-    variants:[{shade:"choco",inStock:true},{shade:"chocoHL",inStock:true},{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true}] },
-
-  { id:"p7",  slug:"straight-choco-hl",  name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:4, reviews:1,  featured:true,  defaultShade:"chocoHL",
-    desc:"Choco brown with olive gold highlight streaks — a warm luxurious combination for bold styling.",
-    features:["3-piece clip-in set","Choco + Gold highlights","Straight texture","Soft premium fiber"],
-    variants:[{shade:"chocoHL",inStock:true},{shade:"choco",inStock:true},{shade:"blackHL",inStock:true}] },
-
-  { id:"p8",  slug:"straight-black-hl",  name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:5, reviews:3,  featured:false, defaultShade:"blackHL",
-    desc:"Classic black base with subtle olive gold highlight panels for a chic modern contrast look.",
-    features:["3-piece clip-in set","Black + Olive Gold highlights","Straight texture","Heat-resistant fiber"],
-    variants:[{shade:"blackHL",inStock:true},{shade:"black",inStock:true},{shade:"hazelHL",inStock:true}] },
-
-  { id:"p9",  slug:"blowdry-choco-hl",   name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:null,         price:4499, stars:4, reviews:0,  featured:false, defaultShade:"chocoHL",
-    desc:"Choco blow-dry extensions with golden highlights for a rich dimensional volume look.",
-    features:["Blow-dry style","Choco + Gold highlights","High volume","Premium synthetic"],
-    variants:[{shade:"chocoHL",inStock:true},{shade:"choco",inStock:true}] },
-
-  { id:"p10", slug:"straight-black-hl2", name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:5, reviews:4,  featured:false, defaultShade:"hazelHL",
-    desc:"Beautiful hazel olive gold highlighted straight extensions — multi-tonal for a dimensional stylish finish.",
-    features:["3-piece clip-in set","Hazel + Gold highlights","Multi-tone strands","Natural-looking texture"],
-    variants:[{shade:"hazelHL",inStock:false},{shade:"hazel",inStock:true},{shade:"blackHL",inStock:true}] },
-];
+async function loadProducts() {
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    const data = await res.json();
+    if (!data.success) return;
+    PRODUCTS = data.products.map(p => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      category: p.category,
+      type: p.type,
+      badge: p.badge,
+      price: parseFloat(p.price),
+      stars: Math.min(5, Math.round(p.avg_rating)) || 5,
+      reviews: p.review_count || 0,
+      featured: p.is_featured,
+      defaultShade: p.variants[0]?.shade_key || 'black',
+      desc: p.description,
+      features: p.features,
+      variants: p.variants.map(v => ({
+        shade: v.shade_key,
+        inStock: v.in_stock,
+        variantId: v.id,
+      })),
+    }));
+  } catch (e) {
+    console.error('Failed to load products from API:', e);
+  }
+}
 
 // ── CART STATE ─────────────────────────────────────────
 let cart = [];
@@ -1036,8 +1016,9 @@ function drawHero() {
 function addToCart(pid, shade) {
   const p = PRODUCTS.find(x => x.id === pid);
   if (!p) return;
-  // TODO: POST /api/cart { productId: pid, slug: p.slug, shade, qty: 1 }
-  cart.push({ pid, shade, name: p.name, shade_name: SHADES[shade].name, price: p.price });
+  const variant = p.variants.find(v => v.shade === shade);
+  const variantId = variant?.variantId;
+  cart.push({ pid, shade, variantId, name: p.name, shade_name: SHADES[shade].name, price: p.price });
   cartCount++;
   const el = document.getElementById('cartCount');
   if (el) el.textContent = cartCount;
@@ -1146,8 +1127,9 @@ function closeMob() { mobOpen = false; document.getElementById('mobMenu').classL
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ── INIT ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   drawHero();
+  await loadProducts();
   renderProducts();
   renderHighlights();
   initFilters();
