@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Moonlight Accessories — Premium Hair Extensions Pakistan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   MOONLIGHT ACCESSORIES — LIGHT LUXURY ECOMMERCE
+   Stack: Vanilla JS + HTML5 Canvas
+   Backend-ready: product data JSON + cart API hooks
+═══════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --red:#C8102E; --red2:#A50D25; --red-light:#F9E8EB; --red-mid:rgba(200,16,46,0.12);
+  --bg:#FAFAF8; --bg2:#F4F0EB; --bg3:#EDE8E2;
+  --white:#FFFFFF;
+  --ink:#1A1108; --ink2:#3D2B1A; --ink3:#7A6A58;
+  --gold:#B8914A; --gold-light:#F5ECD5;
+  --border:#E5DDD5; --border2:#D4C8BC;
+  --shadow:0 2px 20px rgba(60,30,10,0.08);
+  --shadow2:0 8px 40px rgba(60,30,10,0.13);
+  --r:0px;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:400;overflow-x:hidden;line-height:1.6;}
+img{display:block;}
+a{text-decoration:none;color:inherit;}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px;}
+
+/* ── ANNOUNCEMENT ── */
+.ann-bar{background:var(--ink);color:#fff;text-align:center;padding:10px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;}
+.ann-bar span{color:var(--gold);}
+
+/* ── NAVBAR ── */
+nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:800;box-shadow:0 1px 12px rgba(0,0,0,0.06);}
+.nav-wrap{max-width:1320px;margin:0 auto;padding:0 40px;height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.nav-logo{display:flex;align-items:center;gap:12px;}
+.nav-logo-img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--red);}
+.nav-brand{line-height:1.1;}
+.nav-brand-main{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);letter-spacing:1px;}
+.nav-brand-sub{font-size:9px;letter-spacing:4px;color:var(--red);font-weight:600;text-transform:uppercase;}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-size:12px;font-weight:500;letter-spacing:.5px;color:var(--ink2);transition:color .2s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:var(--red);transition:width .2s;}
+.nav-links a:hover{color:var(--red);}
+.nav-links a:hover::after{width:100%;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-search{background:var(--bg2);border:1px solid var(--border);padding:8px 14px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink);width:180px;outline:none;}
+.nav-search:focus{border-color:var(--red);background:var(--white);}
+.nav-cart-btn{display:flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;padding:10px 20px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;transition:background .2s;}
+.nav-cart-btn:hover{background:var(--red2);}
+.cart-count{background:#fff;color:var(--red);width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.ham{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px;}
+.ham span{display:block;width:22px;height:2px;background:var(--ink);transition:all .3s;}
+.mob-menu{display:none;background:var(--white);border-bottom:1px solid var(--border);padding:16px 24px;flex-direction:column;gap:0;}
+.mob-menu.open{display:flex;}
+.mob-menu a{padding:12px 0;font-size:13px;font-weight:500;color:var(--ink2);border-bottom:1px solid var(--border);}
+.mob-menu a:last-child{border-bottom:none;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--white) 60%);min-height:88vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,16,46,0.06) 0%,transparent 70%);pointer-events:none;}
+.hero-left{padding:80px 60px 80px 80px;max-width:620px;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--red-light);color:var(--red);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;padding:6px 14px;margin-bottom:24px;}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(42px,5.5vw,72px);font-weight:700;line-height:1.05;color:var(--ink);margin-bottom:20px;}
+.hero-h1 em{font-style:italic;color:var(--red);}
+.hero-p{font-size:15px;line-height:1.8;color:var(--ink3);max-width:440px;margin-bottom:36px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px;}
+.btn-primary{background:var(--red);color:#fff;border:none;padding:15px 36px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,16,46,0.3);}
+.btn-secondary{background:transparent;color:var(--ink);border:1.5px solid var(--border2);padding:15px 36px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--red);color:var(--red);}
+.hero-trust{display:flex;gap:28px;}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink3);}
+.trust-icon{width:32px;height:32px;background:var(--red-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.hero-right{position:relative;height:88vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--bg3) 0%,var(--bg2) 100%);overflow:hidden;}
+.hero-canvas-wrap{position:relative;width:380px;height:520px;flex-shrink:0;}
+.hero-canvas-wrap canvas{width:100%;height:100%;display:block;}
+.hero-badge{position:absolute;bottom:40px;left:-20px;background:var(--white);box-shadow:var(--shadow2);padding:14px 20px;display:flex;align-items:center;gap:12px;}
+.hero-badge-icon{width:40px;height:40px;background:var(--red-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.hero-badge-text{font-size:11px;line-height:1.5;color:var(--ink2);}
+.hero-badge-text strong{display:block;font-size:13px;color:var(--ink);font-weight:600;}
+
+/* ── MARQUEE ── */
+.marquee-section{background:var(--red);padding:12px 0;overflow:hidden;}
+.marquee-track{display:flex;animation:marquee 20s linear infinite;}
+.m-item{display:inline-flex;align-items:center;gap:16px;padding:0 24px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;}
+.m-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.5);flex-shrink:0;}
+
+/* ── SECTION COMMON ── */
+.section{padding:90px 40px;}
+.section-inner{max-width:1320px;margin:0 auto;}
+.s-head{text-align:center;margin-bottom:56px;}
+.s-tag{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--red);font-weight:600;display:block;margin-bottom:10px;}
+.s-title{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:700;color:var(--ink);line-height:1.1;}
+.s-title em{font-style:italic;color:var(--red);}
+.s-desc{font-size:14px;color:var(--ink3);max-width:520px;margin:14px auto 0;line-height:1.8;}
+.s-line{width:48px;height:3px;background:var(--red);margin:18px auto 0;border-radius:2px;}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--ink);padding:28px 40px;display:flex;justify-content:center;}
+.stats-inner{max-width:900px;width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.stat{text-align:center;padding:8px 20px;border-right:1px solid rgba(255,255,255,0.1);}
+.stat:last-child{border-right:none;}
+.stat-n{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--gold);display:block;line-height:1;}
+.stat-l{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-top:5px;}
+
+/* ── FEATURES STRIP ── */
+.features{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.feat-grid{max-width:1320px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:repeat(4,1fr);}
+.feat{padding:34px 28px;border-right:1px solid var(--border);text-align:center;}
+.feat:last-child{border-right:none;}
+.feat-icon{width:52px;height:52px;background:var(--red-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px;}
+.feat-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.feat-desc{font-size:11.5px;line-height:1.8;color:var(--ink3);}
+
+/* ── PRODUCT SECTION ── */
+.products-section{background:var(--bg);}
+.filter-bar{display:flex;gap:8px;justify-content:center;margin-bottom:48px;flex-wrap:wrap;}
+.f-btn{padding:9px 22px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;background:var(--white);border:1.5px solid var(--border);color:var(--ink3);transition:all .2s;font-family:'DM Sans',sans-serif;}
+.f-btn.active,.f-btn:hover{background:var(--red);border-color:var(--red);color:#fff;}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:24px;}
+
+/* ── PRODUCT CARD ── */
+.p-card{background:var(--white);border:1px solid var(--border);transition:all .3s;overflow:hidden;}
+.p-card:hover{box-shadow:var(--shadow2);transform:translateY(-4px);border-color:var(--border2);}
+.p-img-area{position:relative;background:var(--bg2);overflow:hidden;}
+.p-img-area canvas{display:block;width:100%;aspect-ratio:3/4;}
+.p-badge{position:absolute;top:12px;left:0;background:var(--red);color:#fff;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:5px 12px;}
+.p-badge.sold{background:var(--ink3);}
+.p-badge.highlight{background:var(--gold);}
+.p-logo-wm{position:absolute;bottom:10px;right:10px;width:30px;height:30px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.p-logo-wm img{width:22px;height:22px;border-radius:50%;object-fit:cover;}
+.p-hover-btns{position:absolute;inset:0;background:rgba(26,17,8,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .3s;pointer-events:none;}
+.p-card:hover .p-hover-btns{opacity:1;pointer-events:all;}
+.p-qv-btn{background:#fff;color:var(--ink);border:none;padding:11px 28px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.p-qv-btn:hover{background:var(--red);color:#fff;}
+.p-wishlist-btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);padding:8px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;font-family:'DM Sans',sans-serif;}
+
+/* shade swatches on card */
+.p-shades-row{display:flex;align-items:center;gap:7px;padding:12px 14px 0;flex-wrap:wrap;}
+.shade-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0;position:relative;}
+.shade-swatch:hover{transform:scale(1.2);}
+.shade-swatch.active{border-color:var(--red);box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--red);}
+.shade-swatch[title]:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:9px;padding:4px 8px;white-space:nowrap;pointer-events:none;z-index:10;letter-spacing:.5px;}
+
+.p-info{padding:14px 14px 16px;}
+.p-cat{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink3);font-weight:500;margin-bottom:4px;}
+.p-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:3px;}
+.p-shade-label{font-size:10.5px;color:var(--red);font-weight:600;min-height:16px;margin-bottom:6px;}
+.p-stars{color:var(--gold);font-size:12px;letter-spacing:1px;margin-bottom:8px;}
+.p-stars span{color:var(--ink3);font-size:11px;font-family:'DM Sans',sans-serif;margin-left:4px;}
+.p-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.p-price{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);}
+.p-price .curr{font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;margin-right:2px;color:var(--ink2);}
+.p-add{width:38px;height:38px;background:var(--red);color:#fff;border:none;font-size:22px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;line-height:1;}
+.p-add:hover{background:var(--red2);transform:scale(1.08);}
+.p-add.oos{background:var(--bg3);color:var(--ink3);cursor:not-allowed;}
+
+/* ── HIGHLIGHTS / FEATURED SECTION ── */
+.highlights-section{background:linear-gradient(160deg,var(--bg2) 0%,var(--bg3) 100%);}
+.hl-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:20px;align-items:start;}
+.hl-card-big{background:var(--white);border:1px solid var(--border);overflow:hidden;position:relative;}
+.hl-card-big canvas{display:block;width:100%;aspect-ratio:2/3;}
+.hl-card-small{background:var(--white);border:1px solid var(--border);overflow:hidden;}
+.hl-card-small canvas{display:block;width:100%;aspect-ratio:3/4;}
+.hl-info{padding:16px 18px 20px;}
+.hl-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:6px;}
+.hl-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.3;}
+.hl-price{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red);margin-bottom:10px;}
+.hl-price .curr{font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink2);margin-right:2px;}
+.hl-add{background:var(--ink);color:#fff;border:none;padding:10px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;width:100%;transition:background .2s;font-family:'DM Sans',sans-serif;}
+.hl-add:hover{background:var(--red);}
+
+/* ── SHADE SECTION ── */
+.shades-section{background:var(--white);}
+.shade-picker{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto;}
+.shade-preview{border:1px solid var(--border);overflow:hidden;background:var(--bg2);}
+.shade-preview canvas{display:block;width:100%;}
+.shade-swatches-big{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px;}
+.shade-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);transition:all .2s;font-family:'DM Sans',sans-serif;}
+.shade-btn:hover,.shade-btn.active{border-color:var(--red);background:var(--red-light);}
+.shade-btn .s-circle{width:24px;height:24px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border);}
+.shade-btn .s-name{font-size:11px;font-weight:500;color:var(--ink2);}
+.shade-btn.active .s-name{color:var(--red);font-weight:600;}
+.shade-selected-box{background:var(--bg2);border:1px solid var(--border);padding:16px 20px;margin-top:20px;}
+.shade-selected-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:4px;}
+.shade-selected-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--ink);}
+
+/* ── TESTIMONIALS ── */
+.testi-section{background:var(--bg2);}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.testi-card{background:var(--white);border:1px solid var(--border);padding:32px;}
+.testi-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:14px;}
+.testi-text{font-size:13.5px;line-height:1.85;color:var(--ink2);font-style:italic;margin-bottom:16px;position:relative;padding-left:16px;}
+.testi-text::before{content:'"';position:absolute;left:0;top:-4px;font-family:'Playfair Display',serif;font-size:32px;color:var(--red);opacity:.4;line-height:1;}
+.testi-author{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700;}
+.testi-location{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+/* ── INSTAGRAM CTA ── */
+.ig-section{background:var(--ink);padding:70px 40px;text-align:center;}
+.ig-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,48px);font-weight:700;color:var(--white);margin-bottom:10px;}
+.ig-title em{font-style:italic;color:var(--gold);}
+.ig-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:28px;}
+.ig-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737);color:#fff;padding:15px 36px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;transition:opacity .2s,transform .2s;text-decoration:none;}
+.ig-btn:hover{opacity:.88;transform:translateY(-2px);}
+
+/* ── FOOTER ── */
+footer{background:var(--white);border-top:1px solid var(--border);padding:56px 40px 28px;}
+.foot-inner{max-width:1320px;margin:0 auto;}
+.foot-grid{display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:48px;margin-bottom:40px;}
+.foot-brand-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.foot-brand-img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--red);}
+.foot-brand-main{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:.5px;}
+.foot-brand-sub{font-size:8px;letter-spacing:3px;color:var(--red);font-weight:700;text-transform:uppercase;}
+.foot-brand-desc{font-size:12.5px;line-height:1.85;color:var(--ink3);max-width:260px;}
+.foot-col h4{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:18px;}
+.foot-col ul{list-style:none;}
+.foot-col li{margin-bottom:10px;}
+.foot-col a{font-size:13px;color:var(--ink3);transition:color .2s;}
+.foot-col a:hover{color:var(--red);}
+.foot-bottom{border-top:1px solid var(--border);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.foot-bottom p{font-size:12px;color:var(--ink3);}
+.foot-socials{display:flex;gap:16px;}
+.foot-socials a{font-size:12px;color:var(--ink3);font-weight:500;transition:color .2s;}
+.foot-socials a:hover{color:var(--red);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,17,8,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
+.modal-box{background:var(--white);max-width:880px;width:100%;max-height:92vh;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;position:relative;}
+.modal-close{position:absolute;top:14px;right:14px;background:var(--ink);color:#fff;border:none;width:30px;height:30px;font-size:14px;z-index:10;display:flex;align-items:center;justify-content:center;}
+.modal-img-col{background:var(--bg2);}
+.modal-img-col canvas{display:block;width:100%;aspect-ratio:3/4;}
+.modal-info-col{padding:32px;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;}
+.m-cat{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:8px;}
+.m-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:4px;}
+.m-shade-active{font-size:12px;font-weight:600;color:var(--red);margin-bottom:14px;}
+.m-stars{color:var(--gold);font-size:13px;letter-spacing:2px;margin-bottom:6px;}
+.m-reviews{font-size:11.5px;color:var(--ink3);margin-bottom:16px;}
+.m-price{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--ink);margin-bottom:20px;}
+.m-price .curr{font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink2);}
+.m-shade-label{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:10px;}
+.m-shade-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.m-chip{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;}
+.m-chip:hover,.m-chip.active{border-color:var(--red);background:var(--red-light);}
+.m-chip .chip-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.m-chip .chip-txt{font-size:10px;color:var(--ink2);font-weight:500;}
+.m-chip.active .chip-txt{color:var(--red);font-weight:700;}
+.m-chip .chip-oos{font-size:8px;color:var(--red);margin-left:2px;}
+.m-desc{font-size:12.5px;line-height:1.85;color:var(--ink3);margin-bottom:14px;}
+.m-feats{margin-bottom:20px;}
+.m-feat{font-size:11.5px;color:var(--ink2);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.m-feat::before{content:'✓';color:var(--red);font-weight:700;font-size:11px;}
+.m-add-btn{width:100%;padding:15px;background:var(--red);color:#fff;border:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;transition:background .2s;font-family:'DM Sans',sans-serif;}
+.m-add-btn:hover{background:var(--red2);}
+.m-add-btn.oos{background:var(--ink3);cursor:not-allowed;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:#fff;padding:14px 22px;font-size:12px;letter-spacing:.5px;z-index:9000;transform:translateY(80px);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1);pointer-events:none;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow2);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-check{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+
+/* ── WA ── */
+.wa-float{position:fixed;bottom:28px;left:28px;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:transform .2s;z-index:8000;}
+.wa-float:hover{transform:scale(1.1);}
+
+/* ── KEYFRAMES ── */
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .nav-search{display:none;}
+  .hero{grid-template-columns:1fr;}
+  .hero-left{padding:56px 40px;max-width:100%;}
+  .hero-right{height:420px;order:-1;}
+  .hl-grid{grid-template-columns:1fr 1fr;}
+  .hl-card-big{grid-column:span 2;}
+  .hl-card-big canvas{aspect-ratio:16/9;}
+  .foot-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .nav-wrap{padding:0 20px;}
+  .nav-links{display:none;}
+  .ham{display:flex;}
+  .hero{grid-template-columns:1fr;}
+  .hero-left{padding:44px 20px;text-align:center;}
+  .hero-btns{justify-content:center;}
+  .hero-trust{justify-content:center;flex-wrap:wrap;}
+  .hero-right{height:320px;}
+  .hero-canvas-wrap{width:260px;height:356px;}
+  .stats-bar{padding:20px;}
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .stat{border-bottom:1px solid rgba(255,255,255,0.1);}
+  .feat-grid{grid-template-columns:1fr 1fr;padding:0 20px;}
+  .feat{border-bottom:1px solid var(--border);}
+  .feat:nth-child(odd){border-right:1px solid var(--border);}
+  .feat:nth-child(even){border-right:none;}
+  .section{padding:60px 20px;}
+  .hl-grid{grid-template-columns:1fr;}
+  .hl-card-big{grid-column:span 1;}
+  .hl-card-big canvas{aspect-ratio:3/4;}
+  .shade-picker{grid-template-columns:1fr;gap:32px;}
+  .modal-box{grid-template-columns:1fr;}
+  .modal-img-col canvas{aspect-ratio:16/9;}
+  .foot-grid{grid-template-columns:1fr;gap:32px;padding:0;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .ig-section{padding:52px 20px;}
+  footer{padding:44px 20px 24px;}
+}
+@media(max-width:440px){
+  .prod-grid{grid-template-columns:1fr;}
+  .hero-canvas-wrap{width:220px;height:300px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCEMENT BAR -->
+<div class="ann-bar">
+  <span>✦</span> Free delivery on orders above Rs.5,000 &nbsp;|&nbsp; Premium Synthetic Hair Extensions &nbsp;|&nbsp; <span>WhatsApp Orders Welcome</span>
+</div>
+
+<!-- NAVBAR -->
+<nav id="mainNav">
+  <div class="nav-wrap">
+    <a href="#" class="nav-logo">
+      <img src="data:image/jpeg;base64,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" alt="Moonlight Logo" class="nav-logo-img" id="navLogo">
+      <div class="nav-brand">
+        <div class="nav-brand-main">Moonlight</div>
+        <div class="nav-brand-sub">Accessories</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#products">Collection</a></li>
+      <li><a href="#highlights">Featured</a></li>
+      <li><a href="#shades">Shades</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <input class="nav-search" type="text" placeholder="Search extensions...">
+      <button class="nav-cart-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+        🛒 Cart <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+    <button class="ham" id="hamBtn" aria-label="menu">
+      <span id="h1"></span><span id="h2"></span><span id="h3"></span>
+    </button>
+  </div>
+  <div class="mob-menu" id="mobMenu">
+    <a href="#products" onclick="closeMob()">Collection</a>
+    <a href="#highlights" onclick="closeMob()">Featured</a>
+    <a href="#shades" onclick="closeMob()">Shades</a>
+    <a href="#about" onclick="closeMob()">About</a>
+    <a href="#contact" onclick="closeMob()">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">✦ Premium Hair Extensions Pakistan</div>
+    <h1 class="hero-h1">
+      Elevate Your<br>Style with<br><em>Moonlight</em>
+    </h1>
+    <p class="hero-p">
+      Discover premium synthetic hair extensions in 6+ shades. From natural black to highlighted hazel — transform your look instantly with salon-quality extensions delivered across Pakistan.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+        ✦ &nbsp;Shop Collection
+      </button>
+      <a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank" class="btn-secondary">Follow on Instagram</a>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item"><div class="trust-icon">🚚</div>Free Delivery Rs.5k+</div>
+      <div class="trust-item"><div class="trust-icon">✓</div>100% Authentic</div>
+      <div class="trust-item"><div class="trust-icon">💬</div>WhatsApp Support</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-canvas-wrap">
+      <canvas id="heroCanvas" width="380" height="520"></canvas>
+      <div class="hero-badge">
+        <div class="hero-badge-icon">✨</div>
+        <div class="hero-badge-text">
+          <strong>Highlighted Shades</strong>
+          Natural &amp; Ombre styles available
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><span class="stat-n">10+</span><span class="stat-l">Products</span></div>
+    <div class="stat"><span class="stat-n">6+</span><span class="stat-l">Shades</span></div>
+    <div class="stat"><span class="stat-n">2</span><span class="stat-l">Styles</span></div>
+    <div class="stat"><span class="stat-n">PK</span><span class="stat-l">Nationwide</span></div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="m-item"><span class="m-dot"></span>Straight Extensions</span>
+    <span class="m-item"><span class="m-dot"></span>Blow Dry Style</span>
+    <span class="m-item"><span class="m-dot"></span>Natural Black</span>
+    <span class="m-item"><span class="m-dot"></span>Choco Brown</span>
+    <span class="m-item"><span class="m-dot"></span>Hazel Olive</span>
+    <span class="m-item"><span class="m-dot"></span>Highlighted Shades</span>
+    <span class="m-item"><span class="m-dot"></span>Moonlight Accessories</span>
+    <span class="m-item"><span class="m-dot"></span>Lahore Pakistan</span>
+    <span class="m-item"><span class="m-dot"></span>Straight Extensions</span>
+    <span class="m-item"><span class="m-dot"></span>Blow Dry Style</span>
+    <span class="m-item"><span class="m-dot"></span>Natural Black</span>
+    <span class="m-item"><span class="m-dot"></span>Choco Brown</span>
+    <span class="m-item"><span class="m-dot"></span>Hazel Olive</span>
+    <span class="m-item"><span class="m-dot"></span>Highlighted Shades</span>
+    <span class="m-item"><span class="m-dot"></span>Moonlight Accessories</span>
+    <span class="m-item"><span class="m-dot"></span>Lahore Pakistan</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features" id="about">
+  <div class="feat-grid">
+    <div class="feat">
+      <div class="feat-icon">✦</div>
+      <h3 class="feat-title">Premium Synthetic</h3>
+      <p class="feat-desc">High-grade fiber that mimics natural hair with a silky, lustrous finish.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🎨</div>
+      <h3 class="feat-title">6+ Shades</h3>
+      <p class="feat-desc">Natural black, choco, hazel & beautiful highlighted variants for every skin tone.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🚚</div>
+      <h3 class="feat-title">Fast Delivery</h3>
+      <p class="feat-desc">Nationwide delivery across Pakistan. Free shipping on orders above Rs.5,000.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💬</div>
+      <h3 class="feat-title">WhatsApp Support</h3>
+      <p class="feat-desc">Contact us directly for orders, queries and hassle-free returns.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="section products-section" id="products">
+  <div class="section-inner">
+    <div class="s-head">
+      <span class="s-tag">Our Collection</span>
+      <h2 class="s-title">Hair <em>Extensions</em></h2>
+      <p class="s-desc">Premium synthetic extensions in straight & blow-dry styles. Select a shade to see live preview.</p>
+      <div class="s-line"></div>
+    </div>
+    <div class="filter-bar">
+      <button class="f-btn active" data-filter="all">All</button>
+      <button class="f-btn" data-filter="straight">Straight</button>
+      <button class="f-btn" data-filter="blowdry">Blow Dry</button>
+      <button class="f-btn" data-filter="highlight">Highlighted</button>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </div>
+</section>
+
+<!-- HIGHLIGHTED / FEATURED SECTION -->
+<section class="section highlights-section" id="highlights">
+  <div class="section-inner">
+    <div class="s-head">
+      <span class="s-tag">Editor's Pick</span>
+      <h2 class="s-title">Featured <em>Highlights</em></h2>
+      <p class="s-desc">Our most-loved highlighted extension styles — golden streaks for a dimensional, salon-fresh look.</p>
+      <div class="s-line"></div>
+    </div>
+    <div class="hl-grid" id="hlGrid"></div>
+  </div>
+</section>
+
+<!-- SHADE SELECTOR -->
+<section class="section shades-section" id="shades">
+  <div class="section-inner">
+    <div class="s-head">
+      <span class="s-tag">Available Shades</span>
+      <h2 class="s-title">Find Your <em>Perfect Shade</em></h2>
+      <p class="s-desc">Click any shade to see a live preview. All shades available in Straight & Blow Dry.</p>
+      <div class="s-line"></div>
+    </div>
+    <div class="shade-picker">
+      <div class="shade-preview">
+        <canvas id="shadePreviewCanvas" width="400" height="520"></canvas>
+      </div>
+      <div>
+        <div class="shade-swatches-big" id="shadeSwitcher"></div>
+        <div class="shade-selected-box">
+          <div class="shade-selected-label">Selected Shade</div>
+          <div class="shade-selected-name" id="shadeSelectedName">Natural Black</div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+            Shop This Shade
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testi-section">
+  <div class="section-inner">
+    <div class="s-head">
+      <span class="s-tag">Customer Reviews</span>
+      <h2 class="s-title">What Our Customers <em>Say</em></h2>
+      <div class="s-line"></div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Absolutely love the quality! The straight black extensions blended perfectly with my natural hair. Super easy to clip in — will order again!</p>
+        <div class="testi-author">Sana K.</div>
+        <div class="testi-location">Lahore, Pakistan</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">The hazel highlighted ones are stunning! Really gives that salon look. Fast delivery and beautifully packaged. Finally a reliable brand in Pakistan!</p>
+        <div class="testi-author">Nadia R.</div>
+        <div class="testi-location">Karachi, Pakistan</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">The blow dry style extensions gave my hair so much volume for my sister's wedding. Perfect quality for the price. Highly recommend!</p>
+        <div class="testi-author">Fatima A.</div>
+        <div class="testi-location">Islamabad, Pakistan</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTAGRAM CTA -->
+<div class="ig-section" id="contact">
+  <h2 class="ig-title">Follow Us on <em>Instagram</em></h2>
+  <p class="ig-sub">See styling tips, new arrivals & real customer transformations @moonlightaccessories.pk</p>
+  <a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank" class="ig-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    @moonlightaccessories.pk
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand-wrap">
+          <img src="data:image/jpeg;base64,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" alt="Moonlight" class="foot-brand-img">
+          <div>
+            <div class="foot-brand-main">Moonlight</div>
+            <div class="foot-brand-sub">Accessories</div>
+          </div>
+        </div>
+        <p class="foot-brand-desc">Premium hair extensions for the modern woman. Based in Lahore, delivering quality across Pakistan.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Collection</h4>
+        <ul>
+          <li><a href="#products">Straight Extensions</a></li>
+          <li><a href="#products">Blow Dry Style</a></li>
+          <li><a href="#highlights">Highlighted Shades</a></li>
+          <li><a href="#products">Full Sets</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Information</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Return Policy</a></li>
+          <li><a href="#">FAQs</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank">Instagram</a></li>
+          <li><a href="https://wa.me/923000000000">WhatsApp</a></li>
+          <li><a href="#">Lahore, Pakistan</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2025 Moonlight Accessories. All rights reserved.</p>
+      <div class="foot-socials">
+        <a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank">Instagram</a>
+        <a href="https://wa.me/923000000000">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display:none" onclick="handleModalBgClick(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-img-col">
+      <canvas id="modalCanvas" width="440" height="586"></canvas>
+    </div>
+    <div class="modal-info-col" id="modalInfo"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-check">✓</div>
+  <span id="toastMsg">Added to cart!</span>
+</div>
+
+<!-- WA FLOAT -->
+<a href="https://wa.me/923000000000" class="wa-float" title="Order on WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  MOONLIGHT ACCESSORIES — FRONTEND ENGINE
+//  Backend-ready: swap PRODUCTS with fetch('/api/products')
+//  Cart: swap addToCart() body with POST '/api/cart'
+// ══════════════════════════════════════════════════════
+
+const LOGO_URI = "data:image/jpeg;base64,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";
+
+// ── SHADE DEFINITIONS ─────────────────────────────────
+const SHADES = {
+  black:   { name:"Natural Black",          c1:"#1c1208", c2:"#2e1e10", hl:null,     swatchBg:"#1c1208" },
+  choco:   { name:"Choco Brown",            c1:"#4a2208", c2:"#7a4418", hl:null,     swatchBg:"#5c2e10" },
+  hazel:   { name:"Hazel Olive",            c1:"#7a5c28", c2:"#b89048", hl:null,     swatchBg:"#9b7535" },
+  blackHL: { name:"Black + Gold Highlight", c1:"#1c1208", c2:"#2e1e10", hl:"#C9A96E", swatchBg:"linear-gradient(135deg,#1c1208 50%,#C9A96E 50%)" },
+  chocoHL: { name:"Choco + Gold Highlight", c1:"#4a2208", c2:"#7a4418", hl:"#E8C97A", swatchBg:"linear-gradient(135deg,#5c2e10 50%,#E8C97A 50%)" },
+  hazelHL: { name:"Hazel + Gold Highlight", c1:"#7a5c28", c2:"#b89048", hl:"#F5E090", swatchBg:"linear-gradient(135deg,#9b7535 50%,#F5E090 50%)" },
+};
+
+// ── PRODUCT DATA ─────────────────────────────────────
+// Backend-ready shape: matches REST API response structure
+const PRODUCTS = [
+  { id:"p1",  slug:"straight-03-black",   name:"Straight 03-Piece", category:"straight",  type:"straight",  badge:"Bestseller", price:3374, stars:5, reviews:5,  featured:false, defaultShade:"black",
+    desc:"Premium synthetic straight hair extension set of 3 pieces. Blends naturally for added volume and length.",
+    features:["3-piece clip-in set","Straight texture","Heat-resistant synthetic fiber","Secure claw clip attachment"],
+    variants:[{shade:"black",inStock:true},{shade:"choco",inStock:true},{shade:"hazel",inStock:true},{shade:"blackHL",inStock:true},{shade:"chocoHL",inStock:true},{shade:"hazelHL",inStock:false}] },
+
+  { id:"p2",  slug:"straight-03-hazel",   name:"Straight 03-Piece", category:"straight",  type:"straight",  badge:null,         price:3374, stars:4, reviews:2,  featured:false, defaultShade:"hazel",
+    desc:"Warm hazel olive tone straight extensions for a sun-kissed dimensional look.",
+    features:["3-piece clip-in set","Hazel Olive shade","Natural sheen finish","Easy to apply"],
+    variants:[{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true},{shade:"choco",inStock:true}] },
+
+  { id:"p3",  slug:"blowdry-black",       name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:"New",         price:4499, stars:5, reviews:0,  featured:false, defaultShade:"black",
+    desc:"Voluminous blow-dry style extension for instant glamour. Adds massive body to any look.",
+    features:["Blow-dry voluminous style","Full body & bounce","Silky synthetic fiber","Clip-in attachment"],
+    variants:[{shade:"black",inStock:true},{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"choco",inStock:true}] },
+
+  { id:"p4",  slug:"blowdry-hazel",       name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:null,         price:4499, stars:4, reviews:0,  featured:false, defaultShade:"hazel",
+    desc:"Hazel blow-dry extensions with beautiful bouncy volume and warm tones.",
+    features:["Blow-dry style","Hazel Olive shade","Bouncy full volume","Soft silky texture"],
+    variants:[{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true}] },
+
+  { id:"p5",  slug:"blowdry-hazel-hl",   name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:"New",         price:4499, stars:5, reviews:0,  featured:true,  defaultShade:"hazelHL",
+    desc:"Hazel with olive gold highlights — multi-tonal blow-dry style for a dimensional, glamorous finish.",
+    features:["Blow-dry voluminous style","Hazel + Gold highlights","Multi-tonal dimension","Premium finish"],
+    variants:[{shade:"hazelHL",inStock:true},{shade:"hazel",inStock:true},{shade:"chocoHL",inStock:true}] },
+
+  { id:"p6",  slug:"straight-full-set",  name:"Straight Full Set",  category:"straight",  type:"straight",  badge:"Premium",    price:6637, stars:5, reviews:3,  featured:true,  defaultShade:"choco",
+    desc:"Our premium full straight extension collection. Available in multiple shades with ombre finish — salon quality at home.",
+    features:["Complete full extension set","Multiple shades available","Ombre gradient finish","Salon-quality synthetic fiber"],
+    variants:[{shade:"choco",inStock:true},{shade:"chocoHL",inStock:true},{shade:"hazel",inStock:true},{shade:"hazelHL",inStock:true},{shade:"black",inStock:true}] },
+
+  { id:"p7",  slug:"straight-choco-hl",  name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:4, reviews:1,  featured:true,  defaultShade:"chocoHL",
+    desc:"Choco brown with olive gold highlight streaks — a warm luxurious combination for bold styling.",
+    features:["3-piece clip-in set","Choco + Gold highlights","Straight texture","Soft premium fiber"],
+    variants:[{shade:"chocoHL",inStock:true},{shade:"choco",inStock:true},{shade:"blackHL",inStock:true}] },
+
+  { id:"p8",  slug:"straight-black-hl",  name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:5, reviews:3,  featured:false, defaultShade:"blackHL",
+    desc:"Classic black base with subtle olive gold highlight panels for a chic modern contrast look.",
+    features:["3-piece clip-in set","Black + Olive Gold highlights","Straight texture","Heat-resistant fiber"],
+    variants:[{shade:"blackHL",inStock:true},{shade:"black",inStock:true},{shade:"hazelHL",inStock:true}] },
+
+  { id:"p9",  slug:"blowdry-choco-hl",   name:"Synthetic Blow Dry", category:"blowdry",  type:"blowdry",   badge:null,         price:4499, stars:4, reviews:0,  featured:false, defaultShade:"chocoHL",
+    desc:"Choco blow-dry extensions with golden highlights for a rich dimensional volume look.",
+    features:["Blow-dry style","Choco + Gold highlights","High volume","Premium synthetic"],
+    variants:[{shade:"chocoHL",inStock:true},{shade:"choco",inStock:true}] },
+
+  { id:"p10", slug:"straight-black-hl2", name:"Straight 03-Piece",  category:"straight",  type:"straight",  badge:null,         price:3374, stars:5, reviews:4,  featured:false, defaultShade:"hazelHL",
+    desc:"Beautiful hazel olive gold highlighted straight extensions — multi-tonal for a dimensional stylish finish.",
+    features:["3-piece clip-in set","Hazel + Gold highlights","Multi-tone strands","Natural-looking texture"],
+    variants:[{shade:"hazelHL",inStock:false},{shade:"hazel",inStock:true},{shade:"blackHL",inStock:true}] },
+];
+
+// ── CART STATE ─────────────────────────────────────────
+let cart = [];
+let cartCount = 0;
+
+// ── CANVAS DRAWING ENGINE ────────────────────────────
+// Draws realistic hair strand illustrations using HTML5 Canvas
+// No external images needed — fully generative, unique per shade
+function drawHairExtension(canvas, shadeKey, type) {
+  if (!canvas || !shadeKey) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const sh = SHADES[shadeKey];
+  if (!sh) return;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Background ────────────────────────────────────
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, '#F8F3EE');
+  bgGrad.addColorStop(0.5, '#F0EAE2');
+  bgGrad.addColorStop(1, '#E8E0D5');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle texture dots
+  for (let i = 0; i < 120; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random()*W, Math.random()*H, 0.6, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(180,160,140,0.15)';
+    ctx.fill();
+  }
+
+  // ── Hair configuration ────────────────────────────
+  const isBlow = type === 'blowdry';
+  const numStrands = isBlow ? 44 : 34;
+  const spreadW = isBlow ? 0.9 : 0.7;
+  const startX0 = W * (1 - spreadW) / 2;
+  const endX0   = W * (1 + spreadW) / 2;
+  const topY = H * 0.04;
+  const botY = H * 0.97;
+
+  // ── Draw strands back-to-front ────────────────────
+  for (let i = 0; i < numStrands; i++) {
+    const t = i / (numStrands - 1);
+    const baseX = startX0 + t * (endX0 - startX0);
+
+    // Per-strand color: base + slight variation
+    const brightness = 0.85 + Math.sin(t * Math.PI) * 0.15;
+    const isHL = sh.hl && (i % 5 === 2 || i % 8 === 5);
+    const strandColor = isHL ? sh.hl : sh.c1;
+    const strandColor2 = isHL ? sh.hl : sh.c2;
+
+    // Create gradient along the strand
+    const grad = ctx.createLinearGradient(baseX, topY, baseX + (isBlow ? 30 : 10), botY);
+    grad.addColorStop(0.0, sh.c1);
+    grad.addColorStop(0.15, strandColor2);
+    grad.addColorStop(0.5, strandColor);
+    grad.addColorStop(0.75, strandColor2);
+    grad.addColorStop(0.9, sh.c1 + 'aa');
+
+    ctx.beginPath();
+
+    if (isBlow) {
+      // Blow-dry: curved, voluminous wavy strands
+      const waveAmp = W * 0.08 * Math.sin(t * Math.PI);
+      const phase = t * Math.PI * 2.4;
+      const cp1x = baseX + Math.sin(phase) * waveAmp;
+      const cp1y = topY + H * 0.22;
+      const cp2x = baseX + Math.cos(phase + 1) * waveAmp * 0.8;
+      const cp2y = topY + H * 0.52;
+      const ep1x = baseX + Math.sin(phase + 2) * waveAmp * 0.6;
+      const ep1y = topY + H * 0.72;
+      const ep2x = baseX + Math.cos(phase + 3) * waveAmp * 0.4;
+      const ep2y = botY;
+      ctx.moveTo(baseX, topY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, ep1x, ep1y);
+      ctx.bezierCurveTo(ep1x + waveAmp*0.2, ep1y + H*0.1, ep2x, ep2y - H*0.05, ep2x, ep2y);
+    } else {
+      // Straight: gentle natural fall
+      const sway = (t - 0.5) * W * 0.07;
+      const mid1x = baseX + sway * 0.4;
+      const mid2x = baseX + sway * 0.8;
+      ctx.moveTo(baseX, topY);
+      ctx.bezierCurveTo(mid1x, topY + H * 0.32, mid2x, topY + H * 0.62, baseX + sway, botY);
+    }
+
+    // Strand width varies — center strands slightly thicker
+    const centerBoost = 1 - Math.abs(t - 0.5) * 0.5;
+    ctx.lineWidth = (isHL ? 1.2 : 1.8) * centerBoost + (isBlow ? 0.4 : 0);
+    ctx.strokeStyle = grad;
+    ctx.globalAlpha = isHL ? 0.65 : (0.55 + centerBoost * 0.35);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // ── Shine overlay ─────────────────────────────────
+  const shine = ctx.createLinearGradient(W * 0.1, topY, W * 0.55, topY + H * 0.45);
+  shine.addColorStop(0, 'rgba(255,255,255,0.22)');
+  shine.addColorStop(0.4, 'rgba(255,255,255,0.06)');
+  shine.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = shine;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Clip hardware at top ──────────────────────────
+  const clipX = W * 0.25, clipW = W * 0.5, clipH = 16;
+  ctx.fillStyle = '#8a8078';
+  ctx.beginPath();
+  ctx.roundRect ? ctx.roundRect(clipX, topY, clipW, clipH, 5) : ctx.rect(clipX, topY, clipW, clipH);
+  ctx.fill();
+  // clip highlight
+  ctx.fillStyle = '#b0a89e';
+  ctx.fillRect(clipX + 4, topY + 3, clipW - 8, 5);
+  // clip screws
+  [clipX + 10, clipX + clipW - 10].forEach(sx => {
+    ctx.beginPath(); ctx.arc(sx, topY + 8, 3, 0, Math.PI*2);
+    ctx.fillStyle = '#6a6058'; ctx.fill();
+  });
+
+  // ── Bottom gradient fade ──────────────────────────
+  const fade = ctx.createLinearGradient(0, H * 0.82, 0, H);
+  fade.addColorStop(0, 'rgba(240,233,225,0)');
+  fade.addColorStop(1, 'rgba(240,233,225,0.6)');
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, H * 0.82, W, H * 0.18);
+
+  // ── ML Logo watermark ─────────────────────────────
+  const logoImg = new Image();
+  logoImg.onload = function() {
+    const r = 18, cx = W - 26, cy = H - 26;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.88)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.clip();
+    ctx.drawImage(logoImg, cx - r, cy - r, r*2, r*2);
+    ctx.restore();
+    // red ring
+    ctx.beginPath(); ctx.arc(cx, cy, r + 2, 0, Math.PI*2);
+    ctx.strokeStyle = '#C8102E'; ctx.lineWidth = 1.5; ctx.stroke();
+  };
+  logoImg.src = LOGO_URI;
+}
+
+// ── RENDER PRODUCT GRID ───────────────────────────────
+let activeFilter = 'all';
+const cardShadeState = {}; // tracks selected shade per card
+
+function renderProducts() {
+  const grid = document.getElementById('prodGrid');
+  if (!grid) return;
+
+  const filtered = activeFilter === 'all' ? PRODUCTS
+    : activeFilter === 'highlight'
+      ? PRODUCTS.filter(p => p.variants.some(v => v.shade.endsWith('HL') && v.inStock))
+      : PRODUCTS.filter(p => p.category === activeFilter);
+
+  grid.innerHTML = filtered.map(p => {
+    const shade = cardShadeState[p.id] || p.defaultShade;
+    const variant = p.variants.find(v => v.shade === shade);
+    const inStock = variant ? variant.inStock : true;
+    const badgeClass = p.badge === 'Bestseller' ? '' : p.badge === 'Premium' || p.badge === 'New' ? '' : '';
+    return `
+    <div class="p-card" id="card-${p.id}">
+      <div class="p-img-area">
+        <canvas id="canvas-${p.id}" width="300" height="400" data-pid="${p.id}" data-type="${p.type}"></canvas>
+        ${p.badge ? `<div class="p-badge">${p.badge}</div>` : ''}
+        <div class="p-logo-wm"><img src="${LOGO_URI}" alt="ML"></div>
+        <div class="p-hover-btns">
+          <button class="p-qv-btn" onclick="openModal('${p.id}')">Quick View</button>
+          <button class="p-wishlist-btn" onclick="event.stopPropagation()">♡ Wishlist</button>
+        </div>
+      </div>
+      <div class="p-shades-row" id="shades-${p.id}">
+        ${p.variants.map(v => `
+          <div class="shade-swatch${shade === v.shade ? ' active' : ''}"
+            style="background:${getSwatchBg(v.shade)};opacity:${v.inStock===false?0.38:1}"
+            title="${SHADES[v.shade].name}${v.inStock===false?' (Out of Stock)':''}"
+            onclick="selectCardShade('${p.id}','${v.shade}',${v.inStock!==false})"
+          ></div>`).join('')}
+      </div>
+      <div class="p-info">
+        <div class="p-cat">${p.type} Extension</div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-shade-label" id="slabel-${p.id}">${SHADES[shade].name}</div>
+        <div class="p-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}<span>(${p.reviews})</span></div>
+        <div class="p-bottom">
+          <div class="p-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+          <button class="p-add${!inStock?' oos':''}" id="padd-${p.id}"
+            onclick="${inStock ? `addToCart('${p.id}','${shade}')` : ''}"
+            title="${inStock ? 'Add to cart' : 'Out of stock'}">
+            ${inStock ? '+' : '✕'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Draw canvases after DOM update
+  requestAnimationFrame(() => {
+    filtered.forEach(p => {
+      const shade = cardShadeState[p.id] || p.defaultShade;
+      const canvas = document.getElementById('canvas-' + p.id);
+      if (canvas) drawHairExtension(canvas, shade, p.type);
+    });
+  });
+}
+
+function getSwatchBg(shadeKey) {
+  const s = SHADES[shadeKey];
+  return s.hl
+    ? `conic-gradient(${s.c1} 180deg, ${s.hl} 180deg)`
+    : `linear-gradient(135deg, ${s.c1}, ${s.c2})`;
+}
+
+function selectCardShade(pid, shadeKey, inStock) {
+  cardShadeState[pid] = shadeKey;
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+
+  // Update shade label
+  const label = document.getElementById('slabel-' + pid);
+  if (label) label.textContent = SHADES[shadeKey].name;
+
+  // Update active swatch dot
+  const shadeRow = document.getElementById('shades-' + pid);
+  if (shadeRow) {
+    shadeRow.querySelectorAll('.shade-swatch').forEach(el => el.classList.remove('active'));
+    // find the swatch for this shade (by order in variants)
+    const idx = p.variants.findIndex(v => v.shade === shadeKey);
+    const swatches = shadeRow.querySelectorAll('.shade-swatch');
+    if (swatches[idx]) swatches[idx].classList.add('active');
+  }
+
+  // Update add button
+  const addBtn = document.getElementById('padd-' + pid);
+  if (addBtn) {
+    addBtn.className = 'p-add' + (inStock ? '' : ' oos');
+    addBtn.textContent = inStock ? '+' : '✕';
+    addBtn.onclick = inStock ? () => addToCart(pid, shadeKey) : null;
+  }
+
+  // Redraw canvas with new shade
+  const canvas = document.getElementById('canvas-' + pid);
+  if (canvas) drawHairExtension(canvas, shadeKey, p.type);
+}
+
+// ── FILTER BAR ────────────────────────────────────────
+function initFilters() {
+  document.querySelectorAll('.f-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderProducts();
+    });
+  });
+}
+
+// ── HIGHLIGHTS / FEATURED SECTION ────────────────────
+function renderHighlights() {
+  const grid = document.getElementById('hlGrid');
+  if (!grid) return;
+
+  // Pick highlighted products
+  const hlProducts = PRODUCTS.filter(p => p.featured || p.defaultShade.endsWith('HL'));
+  const featured3 = hlProducts.slice(0, 3);
+  if (featured3.length < 1) return;
+
+  grid.innerHTML = featured3.map((p, i) => {
+    const shade = p.defaultShade;
+    const isMain = i === 0;
+    return `
+    <div class="${isMain ? 'hl-card-big' : 'hl-card-small'}" style="cursor:pointer" onclick="openModal('${p.id}')">
+      <canvas id="hlcanvas-${p.id}" width="${isMain?560:380}" height="${isMain?746:506}" style="display:block;width:100%;${isMain?'aspect-ratio:3/4':'aspect-ratio:3/4'}"></canvas>
+      <div class="hl-info">
+        <div class="hl-tag">${p.badge || 'Featured'} · ${SHADES[shade].name}</div>
+        <div class="hl-name">${p.name}</div>
+        <div class="hl-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+        <button class="hl-add" onclick="event.stopPropagation();addToCart('${p.id}','${shade}')">Add to Cart</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    featured3.forEach(p => {
+      const c = document.getElementById('hlcanvas-' + p.id);
+      if (c) drawHairExtension(c, p.defaultShade, p.type);
+    });
+  });
+}
+
+// ── SHADE PREVIEW SECTION ────────────────────────────
+let currentPreviewShade = 'black';
+
+function initShadePicker() {
+  const switcher = document.getElementById('shadeSwitcher');
+  if (!switcher) return;
+  switcher.innerHTML = Object.entries(SHADES).map(([key, sh]) => `
+    <button class="shade-btn${key === currentPreviewShade ? ' active' : ''}" onclick="pickShade('${key}')">
+      <div class="s-circle" style="background:${getSwatchBg(key)}"></div>
+      <span class="s-name">${sh.name}</span>
+    </button>
+  `).join('');
+
+  const canvas = document.getElementById('shadePreviewCanvas');
+  if (canvas) drawHairExtension(canvas, currentPreviewShade, 'straight');
+}
+
+function pickShade(key) {
+  currentPreviewShade = key;
+  document.querySelectorAll('.shade-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.shade-btn');
+  const keys = Object.keys(SHADES);
+  const idx = keys.indexOf(key);
+  if (btns[idx]) btns[idx].classList.add('active');
+  const nameEl = document.getElementById('shadeSelectedName');
+  if (nameEl) nameEl.textContent = SHADES[key].name;
+  const canvas = document.getElementById('shadePreviewCanvas');
+  if (canvas) drawHairExtension(canvas, key, 'straight');
+}
+
+// ── HERO CANVAS ───────────────────────────────────────
+function drawHero() {
+  const c = document.getElementById('heroCanvas');
+  if (c) drawHairExtension(c, 'hazelHL', 'blowdry');
+}
+
+// ── CART ──────────────────────────────────────────────
+function addToCart(pid, shade) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+  // TODO: POST /api/cart { productId: pid, slug: p.slug, shade, qty: 1 }
+  cart.push({ pid, shade, name: p.name, shade_name: SHADES[shade].name, price: p.price });
+  cartCount++;
+  const el = document.getElementById('cartCount');
+  if (el) el.textContent = cartCount;
+  showToast(`${p.name} (${SHADES[shade].name}) added to cart!`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toastMsg');
+  if (!t) return;
+  if (m) m.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── MODAL ─────────────────────────────────────────────
+let modalCurrentShade = null;
+let modalCurrentPid = null;
+
+function openModal(pid) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+  modalCurrentPid = pid;
+  modalCurrentShade = cardShadeState[pid] || p.defaultShade;
+
+  const overlay = document.getElementById('modalOverlay');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  renderModalContent(p, modalCurrentShade);
+
+  // Draw modal canvas
+  const mc = document.getElementById('modalCanvas');
+  if (mc) drawHairExtension(mc, modalCurrentShade, p.type);
+}
+
+function renderModalContent(p, shade) {
+  const variant = p.variants.find(v => v.shade === shade);
+  const inStock = variant ? variant.inStock : true;
+
+  document.getElementById('modalInfo').innerHTML = `
+    <div>
+      <div class="m-cat">${p.type.toUpperCase()} EXTENSION</div>
+      <div class="m-name">${p.name}</div>
+      <div class="m-shade-active">${SHADES[shade].name}</div>
+      <div class="m-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}</div>
+      <div class="m-reviews">${p.reviews > 0 ? p.reviews + ' verified reviews' : 'Be the first to review'}</div>
+      <div class="m-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+      <div class="m-shade-label">Select Shade</div>
+      <div class="m-shade-chips">
+        ${p.variants.map(v => `
+          <div class="m-chip${shade === v.shade ? ' active' : ''}" onclick="switchModalShade('${p.id}','${v.shade}')" style="opacity:${v.inStock===false?0.4:1};pointer-events:${v.inStock===false?'none':'auto'}">
+            <div class="chip-dot" style="background:${getSwatchBg(v.shade)}"></div>
+            <span class="chip-txt">${SHADES[v.shade].name}</span>
+            ${v.inStock===false ? '<span class="chip-oos">OUT</span>' : ''}
+          </div>`).join('')}
+      </div>
+      <div class="m-desc">${p.desc}</div>
+      <div class="m-feats">
+        ${p.features.map(f => `<div class="m-feat">${f}</div>`).join('')}
+      </div>
+    </div>
+    <button class="m-add-btn${!inStock ? ' oos' : ''}" ${!inStock ? 'disabled' : ''}
+      onclick="${inStock ? `addToCart('${p.id}','${shade}');closeModal()` : ''}">
+      ${inStock ? 'Add to Cart — Rs. ' + p.price.toLocaleString() : 'Sold Out — Choose Another Shade'}
+    </button>
+  `;
+}
+
+function switchModalShade(pid, shadeKey) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p) return;
+  modalCurrentShade = shadeKey;
+  const mc = document.getElementById('modalCanvas');
+  if (mc) drawHairExtension(mc, shadeKey, p.type);
+  renderModalContent(p, shadeKey);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function handleModalBgClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ── MOBILE MENU ───────────────────────────────────────
+let mobOpen = false;
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('hamBtn').addEventListener('click', () => {
+    mobOpen = !mobOpen;
+    const m = document.getElementById('mobMenu');
+    m.classList.toggle('open', mobOpen);
+    const h1 = document.getElementById('h1'), h2 = document.getElementById('h2'), h3 = document.getElementById('h3');
+    if (h1 && h2 && h3) {
+      h1.style.transform = mobOpen ? 'rotate(45deg) translate(5px,5px)' : '';
+      h2.style.opacity = mobOpen ? '0' : '1';
+      h3.style.transform = mobOpen ? 'rotate(-45deg) translate(5px,-5px)' : '';
+    }
+  });
+});
+function closeMob() { mobOpen = false; document.getElementById('mobMenu').classList.remove('open'); }
+
+// ── KEYBOARD ESC ─────────────────────────────────────
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── INIT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  drawHero();
+  renderProducts();
+  renderHighlights();
+  initFilters();
+  initShadePicker();
+});
+</script>
+</body>
+</html>
