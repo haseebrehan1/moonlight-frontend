@@ -165,11 +165,10 @@ nav{background:var(--white);border-bottom:1px solid var(--border);position:stick
 
 /* ── HIGHLIGHTS / FEATURED SECTION ── */
 .highlights-section{background:linear-gradient(160deg,var(--bg2) 0%,var(--bg3) 100%);}
-.hl-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:20px;align-items:start;}
-.hl-card-big{background:var(--white);border:1px solid var(--border);overflow:hidden;position:relative;}
-.hl-card-big canvas{display:block;width:100%;aspect-ratio:2/3;}
-.hl-card-small{background:var(--white);border:1px solid var(--border);overflow:hidden;}
-.hl-card-small canvas{display:block;width:100%;aspect-ratio:3/4;}
+.hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;}
+.hl-card{background:var(--white);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;}
+.hl-card canvas{display:block;width:100%;aspect-ratio:3/4;}
+.hl-card .hl-info{flex:1;display:flex;flex-direction:column;justify-content:flex-end;}
 .hl-info{padding:16px 18px 20px;}
 .hl-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:6px;}
 .hl-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.3;}
@@ -183,6 +182,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);position:stick
 .shade-picker{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto;}
 .shade-preview{border:1px solid var(--border);overflow:hidden;background:var(--bg2);}
 .shade-preview canvas{display:block;width:100%;}
+.shade-preview img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;}
+.hero-canvas-wrap img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;}
 .shade-swatches-big{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px;}
 .shade-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);transition:all .2s;font-family:'DM Sans',sans-serif;}
 .shade-btn:hover,.shade-btn.active{border-color:var(--red);background:var(--red-light);}
@@ -235,8 +236,13 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .modal-overlay{position:fixed;inset:0;background:rgba(26,17,8,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
 .modal-box{background:var(--white);max-width:880px;width:100%;max-height:92vh;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;position:relative;}
 .modal-close{position:absolute;top:14px;right:14px;background:var(--ink);color:#fff;border:none;width:30px;height:30px;font-size:14px;z-index:10;display:flex;align-items:center;justify-content:center;}
-.modal-img-col{background:var(--bg2);}
+.modal-img-col{background:var(--bg2);display:flex;flex-direction:column;}
 .modal-img-col canvas{display:block;width:100%;aspect-ratio:3/4;}
+.modal-img-col img.m-main-img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;flex:1;}
+.m-thumbs-row{display:flex;gap:6px;padding:8px;background:var(--bg3);overflow-x:auto;flex-shrink:0;}
+.m-thumb{width:54px;height:72px;object-fit:cover;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.15s;opacity:.75;}
+.m-thumb:hover,.m-thumb.active{border-color:var(--red);opacity:1;}
+.p-img-area img.p-real-img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;}
 .modal-info-col{padding:32px;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;}
 .m-cat{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:8px;}
 .m-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:4px;}
@@ -470,7 +476,8 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
       <button class="f-btn active" data-filter="all">All</button>
       <button class="f-btn" data-filter="straight">Straight</button>
       <button class="f-btn" data-filter="blowdry">Blow Dry</button>
-      <button class="f-btn" data-filter="highlight">Highlighted</button>
+      <button class="f-btn" data-filter="curls">Curls</button>
+      <button class="f-btn" data-filter="featured">Featured</button>
     </div>
     <div class="prod-grid" id="prodGrid"></div>
   </div>
@@ -635,21 +642,33 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 <script>
 // ══════════════════════════════════════════════════════
 //  MOONLIGHT ACCESSORIES — FRONTEND ENGINE
-//  Connected to: http://localhost:5000/api/v1
 // ══════════════════════════════════════════════════════
 
-const API_BASE = 'https://moonlight-backend-production.up.railway.app/api/v1';
+// ── API ORIGIN ────────────────────────────────────────
+// Resolved from where the page is served rather than hardcoded, so the site
+// keeps working if the server IP changes. On the live domain this stays
+// same-origin: nginx proxies /api to the API, which avoids CORS entirely and
+// prevents browsers blocking http:// calls from an https:// page as mixed
+// content.
+const API_ORIGIN = (() => {
+  const host = location.hostname;
+  if (host.endsWith('moonlightaccessories.pk')) return '';
+  if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:5000';
+  return 'https://moonlightaccessories.pk';
+})();
+
+const API_BASE = `${API_ORIGIN}/api/v1`;
 
 const LOGO_URI = "data:image/jpeg;base64,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";
 
 // ── SHADE DEFINITIONS ─────────────────────────────────
 const SHADES = {
-  black:   { name:"Natural Black",          c1:"#1c1208", c2:"#2e1e10", hl:null,     swatchBg:"#1c1208" },
-  choco:   { name:"Choco Brown",            c1:"#4a2208", c2:"#7a4418", hl:null,     swatchBg:"#5c2e10" },
-  hazel:   { name:"Hazel Olive",            c1:"#7a5c28", c2:"#b89048", hl:null,     swatchBg:"#9b7535" },
-  blackHL: { name:"Black + Gold Highlight", c1:"#1c1208", c2:"#2e1e10", hl:"#C9A96E", swatchBg:"linear-gradient(135deg,#1c1208 50%,#C9A96E 50%)" },
-  chocoHL: { name:"Choco + Gold Highlight", c1:"#4a2208", c2:"#7a4418", hl:"#E8C97A", swatchBg:"linear-gradient(135deg,#5c2e10 50%,#E8C97A 50%)" },
-  hazelHL: { name:"Hazel + Gold Highlight", c1:"#7a5c28", c2:"#b89048", hl:"#F5E090", swatchBg:"linear-gradient(135deg,#9b7535 50%,#F5E090 50%)" },
+  jetblack:  { name:"Jet Black",      c1:"#0a0a0a", c2:"#1a1a1a", hl:null },
+  natural:   { name:"Natural Black",  c1:"#1c1208", c2:"#2e1e10", hl:null },
+  medbrown:  { name:"Medium Brown",   c1:"#7a4020", c2:"#9a5828", hl:null },
+  darkbrown: { name:"Dark Brown",     c1:"#3a1c08", c2:"#5c2e14", hl:null },
+  moka:      { name:"Moka Brown",     c1:"#4e2a14", c2:"#6e3e20", hl:null },
+  mahogany:  { name:"Mahogany",       c1:"#6e1e14", c2:"#8c2c1e", hl:null },
 };
 
 // ── PRODUCT DATA (loaded from API) ───────────────────
@@ -660,26 +679,36 @@ async function loadProducts() {
     const res = await fetch(`${API_BASE}/products`);
     const data = await res.json();
     if (!data.success) return;
-    PRODUCTS = data.products.map(p => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      category: p.category,
-      type: p.type,
-      badge: p.badge,
-      price: parseFloat(p.price),
-      stars: Math.min(5, Math.round(p.avg_rating)) || 5,
-      reviews: p.review_count || 0,
-      featured: p.is_featured,
-      defaultShade: p.variants[0]?.shade_key || 'black',
-      desc: p.description,
-      features: p.features,
-      variants: p.variants.map(v => ({
-        shade: v.shade_key,
-        inStock: v.in_stock,
-        variantId: v.id,
-      })),
-    }));
+    const SERVER = API_ORIGIN;
+    PRODUCTS = data.products.map(p => {
+      const imgs = p.images || [];
+      const primaryImg = imgs.find(i => i.is_primary) || imgs[0] || null;
+      const byShade = {};
+      imgs.forEach(i => { if (i.shade_key) byShade[i.shade_key] = i.url; });
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        category: p.category,
+        type: p.type,
+        badge: p.badge,
+        price: parseFloat(p.price),
+        stars: Math.min(5, Math.round(p.avg_rating)) || 5,
+        reviews: p.review_count || 0,
+        featured: p.is_featured,
+        defaultShade: p.variants[0]?.shade_key || Object.keys(SHADES)[0],
+        desc: p.description,
+        features: p.features,
+        variants: p.variants.map(v => ({
+          shade: v.shade_key,
+          inStock: v.in_stock,
+          variantId: v.id,
+        })),
+        images: imgs,
+        primaryImage: primaryImg ? SERVER + primaryImg.url : null,
+        imagesByShade: Object.fromEntries(Object.entries(byShade).map(([k,v]) => [k, SERVER + v])),
+      };
+    }).filter(p => p.variants.length > 0);
   } catch (e) {
     console.error('Failed to load products from API:', e);
   }
@@ -837,9 +866,9 @@ function renderProducts() {
   if (!grid) return;
 
   const filtered = activeFilter === 'all' ? PRODUCTS
-    : activeFilter === 'highlight'
-      ? PRODUCTS.filter(p => p.variants.some(v => v.shade.endsWith('HL') && v.inStock))
-      : PRODUCTS.filter(p => p.category === activeFilter);
+    : activeFilter === 'featured'
+      ? PRODUCTS.filter(p => p.featured)
+      : PRODUCTS.filter(p => p.category === activeFilter || p.type === activeFilter);
 
   grid.innerHTML = filtered.map(p => {
     const shade = cardShadeState[p.id] || p.defaultShade;
@@ -849,7 +878,10 @@ function renderProducts() {
     return `
     <div class="p-card" id="card-${p.id}">
       <div class="p-img-area">
-        <canvas id="canvas-${p.id}" width="300" height="400" data-pid="${p.id}" data-type="${p.type}"></canvas>
+        ${p.primaryImage
+          ? `<img class="p-real-img" id="cardimg-${p.id}" src="${p.imagesByShade[shade] || p.primaryImage}" alt="${p.name}" />`
+          : `<canvas id="canvas-${p.id}" width="300" height="400" data-pid="${p.id}" data-type="${p.type}"></canvas>`
+        }
         ${p.badge ? `<div class="p-badge">${p.badge}</div>` : ''}
         <div class="p-logo-wm"><img src="${LOGO_URI}" alt="ML"></div>
         <div class="p-hover-btns">
@@ -861,14 +893,14 @@ function renderProducts() {
         ${p.variants.map(v => `
           <div class="shade-swatch${shade === v.shade ? ' active' : ''}"
             style="background:${getSwatchBg(v.shade)};opacity:${v.inStock===false?0.38:1}"
-            title="${SHADES[v.shade].name}${v.inStock===false?' (Out of Stock)':''}"
+            title="${(SHADES[v.shade]||SHADES[Object.keys(SHADES)[0]]).name}${v.inStock===false?' (Out of Stock)':''}"
             onclick="selectCardShade('${p.id}','${v.shade}',${v.inStock!==false})"
           ></div>`).join('')}
       </div>
       <div class="p-info">
         <div class="p-cat">${p.type} Extension</div>
         <div class="p-name">${p.name}</div>
-        <div class="p-shade-label" id="slabel-${p.id}">${SHADES[shade].name}</div>
+        <div class="p-shade-label" id="slabel-${p.id}">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
         <div class="p-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}<span>(${p.reviews})</span></div>
         <div class="p-bottom">
           <div class="p-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
@@ -893,7 +925,7 @@ function renderProducts() {
 }
 
 function getSwatchBg(shadeKey) {
-  const s = SHADES[shadeKey];
+  const s = SHADES[shadeKey] || SHADES[Object.keys(SHADES)[0]];
   return s.hl
     ? `conic-gradient(${s.c1} 180deg, ${s.hl} 180deg)`
     : `linear-gradient(135deg, ${s.c1}, ${s.c2})`;
@@ -906,7 +938,7 @@ function selectCardShade(pid, shadeKey, inStock) {
 
   // Update shade label
   const label = document.getElementById('slabel-' + pid);
-  if (label) label.textContent = SHADES[shadeKey].name;
+  if (label) label.textContent = (SHADES[shadeKey]||SHADES[Object.keys(SHADES)[0]]).name;
 
   // Update active swatch dot
   const shadeRow = document.getElementById('shades-' + pid);
@@ -926,9 +958,14 @@ function selectCardShade(pid, shadeKey, inStock) {
     addBtn.onclick = inStock ? () => addToCart(pid, shadeKey) : null;
   }
 
-  // Redraw canvas with new shade
-  const canvas = document.getElementById('canvas-' + pid);
-  if (canvas) drawHairExtension(canvas, shadeKey, p.type);
+  // Update image or redraw canvas
+  const cardImg = document.getElementById('cardimg-' + pid);
+  if (cardImg) {
+    cardImg.src = p.imagesByShade[shadeKey] || p.primaryImage;
+  } else {
+    const canvas = document.getElementById('canvas-' + pid);
+    if (canvas) drawHairExtension(canvas, shadeKey, p.type);
+  }
 }
 
 // ── FILTER BAR ────────────────────────────────────────
@@ -949,18 +986,20 @@ function renderHighlights() {
   if (!grid) return;
 
   // Pick highlighted products
-  const hlProducts = PRODUCTS.filter(p => p.featured || p.defaultShade.endsWith('HL'));
+  const hlProducts = PRODUCTS.filter(p => p.featured);
   const featured3 = hlProducts.slice(0, 3);
   if (featured3.length < 1) return;
 
-  grid.innerHTML = featured3.map((p, i) => {
+  grid.innerHTML = featured3.map((p) => {
     const shade = p.defaultShade;
-    const isMain = i === 0;
     return `
-    <div class="${isMain ? 'hl-card-big' : 'hl-card-small'}" style="cursor:pointer" onclick="openModal('${p.id}')">
-      <canvas id="hlcanvas-${p.id}" width="${isMain?560:380}" height="${isMain?746:506}" style="display:block;width:100%;${isMain?'aspect-ratio:3/4':'aspect-ratio:3/4'}"></canvas>
+    <div class="hl-card" style="cursor:pointer" onclick="openModal('${p.id}')">
+      ${p.primaryImage
+        ? `<img src="${p.imagesByShade[shade]||p.primaryImage}" alt="${p.name}" style="display:block;width:100%;aspect-ratio:3/4;object-fit:cover;" />`
+        : `<canvas id="hlcanvas-${p.id}" width="380" height="506"></canvas>`
+      }
       <div class="hl-info">
-        <div class="hl-tag">${p.badge || 'Featured'} · ${SHADES[shade].name}</div>
+        <div class="hl-tag">${p.badge || 'Featured'} · ${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
         <div class="hl-name">${p.name}</div>
         <div class="hl-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
         <button class="hl-add" onclick="event.stopPropagation();addToCart('${p.id}','${shade}')">Add to Cart</button>
@@ -970,14 +1009,16 @@ function renderHighlights() {
 
   requestAnimationFrame(() => {
     featured3.forEach(p => {
-      const c = document.getElementById('hlcanvas-' + p.id);
-      if (c) drawHairExtension(c, p.defaultShade, p.type);
+      if (!p.primaryImage) {
+        const c = document.getElementById('hlcanvas-' + p.id);
+        if (c) drawHairExtension(c, p.defaultShade, p.type);
+      }
     });
   });
 }
 
 // ── SHADE PREVIEW SECTION ────────────────────────────
-let currentPreviewShade = 'black';
+let currentPreviewShade = 'jetblack';
 
 function initShadePicker() {
   const switcher = document.getElementById('shadeSwitcher');
@@ -988,28 +1029,46 @@ function initShadePicker() {
       <span class="s-name">${sh.name}</span>
     </button>
   `).join('');
-
-  const canvas = document.getElementById('shadePreviewCanvas');
-  if (canvas) drawHairExtension(canvas, currentPreviewShade, 'straight');
+  pickShade(currentPreviewShade);
 }
 
 function pickShade(key) {
   currentPreviewShade = key;
   document.querySelectorAll('.shade-btn').forEach(b => b.classList.remove('active'));
-  const btns = document.querySelectorAll('.shade-btn');
   const keys = Object.keys(SHADES);
+  const btns = document.querySelectorAll('.shade-btn');
   const idx = keys.indexOf(key);
   if (btns[idx]) btns[idx].classList.add('active');
   const nameEl = document.getElementById('shadeSelectedName');
-  if (nameEl) nameEl.textContent = SHADES[key].name;
-  const canvas = document.getElementById('shadePreviewCanvas');
-  if (canvas) drawHairExtension(canvas, key, 'straight');
+  const shadeObj = SHADES[key] || SHADES[Object.keys(SHADES)[0]];
+  if (nameEl) nameEl.textContent = shadeObj.name;
+
+  const preview = document.querySelector('.shade-preview');
+  const shadeImg = PRODUCTS.map(p => p.imagesByShade?.[key]).find(Boolean);
+  if (shadeImg) {
+    preview.innerHTML = `<img src="${shadeImg}" alt="${shadeObj.name}" />`;
+  } else {
+    preview.innerHTML = `<canvas id="shadePreviewCanvas" width="400" height="520"></canvas>`;
+    drawHairExtension(document.getElementById('shadePreviewCanvas'), key, 'straight');
+  }
 }
 
-// ── HERO CANVAS ───────────────────────────────────────
+// ── HERO ─────────────────────────────────────────────
 function drawHero() {
-  const c = document.getElementById('heroCanvas');
-  if (c) drawHairExtension(c, 'hazelHL', 'blowdry');
+  const wrap = document.querySelector('.hero-canvas-wrap');
+  if (!wrap) return;
+  const featured = PRODUCTS.find(p => p.featured && p.primaryImage) || PRODUCTS.find(p => p.primaryImage);
+  if (featured?.primaryImage) {
+    wrap.innerHTML = `
+      <img src="${featured.primaryImage}" alt="${featured.name}" />
+      <div class="hero-badge">
+        <div class="hero-badge-icon">✨</div>
+        <div class="hero-badge-text"><strong>${featured.name}</strong>Premium Hair Extensions</div>
+      </div>`;
+  } else {
+    const c = document.getElementById('heroCanvas');
+    if (c) drawHairExtension(c, 'mahogany', 'blowdry');
+  }
 }
 
 // ── CART ──────────────────────────────────────────────
@@ -1018,11 +1077,12 @@ function addToCart(pid, shade) {
   if (!p) return;
   const variant = p.variants.find(v => v.shade === shade);
   const variantId = variant?.variantId;
-  cart.push({ pid, shade, variantId, name: p.name, shade_name: SHADES[shade].name, price: p.price });
+  const shadeName = (SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name;
+  cart.push({ pid, shade, variantId, name: p.name, shade_name: shadeName, price: p.price });
   cartCount++;
   const el = document.getElementById('cartCount');
   if (el) el.textContent = cartCount;
-  showToast(`${p.name} (${SHADES[shade].name}) added to cart!`);
+  showToast(`${p.name} (${shadeName}) added to cart!`);
 }
 
 function showToast(msg) {
@@ -1048,11 +1108,29 @@ function openModal(pid) {
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
-  renderModalContent(p, modalCurrentShade);
+  const imgCol = document.querySelector('.modal-img-col');
+  if (p.images && p.images.length > 0) {
+    const current = p.imagesByShade[modalCurrentShade] || p.primaryImage;
+    imgCol.innerHTML = `
+      <img class="m-main-img" id="modalMainImg" src="${current}" alt="${p.name}" />
+      ${p.images.length > 1 ? `<div class="m-thumbs-row">${p.images.map(img => {
+        const src = API_ORIGIN + img.url;
+        return `<img class="m-thumb${src === current ? ' active' : ''}" src="${src}" data-url="${src}" onclick="switchModalImage('${src}')" />`;
+      }).join('')}</div>` : ''}
+    `;
+  } else {
+    imgCol.innerHTML = `<canvas id="modalCanvas" width="440" height="586"></canvas>`;
+    const mc = document.getElementById('modalCanvas');
+    if (mc) drawHairExtension(mc, modalCurrentShade, p.type);
+  }
 
-  // Draw modal canvas
-  const mc = document.getElementById('modalCanvas');
-  if (mc) drawHairExtension(mc, modalCurrentShade, p.type);
+  renderModalContent(p, modalCurrentShade);
+}
+
+function switchModalImage(url) {
+  const mainImg = document.getElementById('modalMainImg');
+  if (mainImg) mainImg.src = url;
+  document.querySelectorAll('.m-thumb').forEach(t => t.classList.toggle('active', t.dataset.url === url));
 }
 
 function renderModalContent(p, shade) {
@@ -1063,7 +1141,7 @@ function renderModalContent(p, shade) {
     <div>
       <div class="m-cat">${p.type.toUpperCase()} EXTENSION</div>
       <div class="m-name">${p.name}</div>
-      <div class="m-shade-active">${SHADES[shade].name}</div>
+      <div class="m-shade-active">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
       <div class="m-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}</div>
       <div class="m-reviews">${p.reviews > 0 ? p.reviews + ' verified reviews' : 'Be the first to review'}</div>
       <div class="m-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
@@ -1072,7 +1150,7 @@ function renderModalContent(p, shade) {
         ${p.variants.map(v => `
           <div class="m-chip${shade === v.shade ? ' active' : ''}" onclick="switchModalShade('${p.id}','${v.shade}')" style="opacity:${v.inStock===false?0.4:1};pointer-events:${v.inStock===false?'none':'auto'}">
             <div class="chip-dot" style="background:${getSwatchBg(v.shade)}"></div>
-            <span class="chip-txt">${SHADES[v.shade].name}</span>
+            <span class="chip-txt">${(SHADES[v.shade]||SHADES[Object.keys(SHADES)[0]]).name}</span>
             ${v.inStock===false ? '<span class="chip-oos">OUT</span>' : ''}
           </div>`).join('')}
       </div>
@@ -1092,8 +1170,13 @@ function switchModalShade(pid, shadeKey) {
   const p = PRODUCTS.find(x => x.id === pid);
   if (!p) return;
   modalCurrentShade = shadeKey;
-  const mc = document.getElementById('modalCanvas');
-  if (mc) drawHairExtension(mc, shadeKey, p.type);
+  if (p.images && p.images.length > 0) {
+    const url = p.imagesByShade[shadeKey] || p.primaryImage;
+    if (url) switchModalImage(url);
+  } else {
+    const mc = document.getElementById('modalCanvas');
+    if (mc) drawHairExtension(mc, shadeKey, p.type);
+  }
   renderModalContent(p, shadeKey);
 }
 
@@ -1128,8 +1211,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ── INIT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  drawHero();
+  drawHero(); // initial canvas while loading
   await loadProducts();
+  drawHero(); // update with real image if available
   renderProducts();
   renderHighlights();
   initFilters();
