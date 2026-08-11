@@ -238,7 +238,9 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .modal-close{position:absolute;top:14px;right:14px;background:var(--ink);color:#fff;border:none;width:30px;height:30px;font-size:14px;z-index:10;display:flex;align-items:center;justify-content:center;}
 .modal-img-col{background:var(--bg2);display:flex;flex-direction:column;}
 .modal-img-col canvas{display:block;width:100%;aspect-ratio:3/4;}
-.modal-img-col img.m-main-img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;flex:1;}
+/* contain rather than cover: a photo that isn't 3:4 is shown whole instead of
+   having its edges cropped away. The cards keep cover so the grid stays even. */
+.modal-img-col img.m-main-img{display:block;width:100%;aspect-ratio:3/4;object-fit:contain;background:var(--bg3);flex:1;}
 .m-thumbs-row{display:flex;gap:6px;padding:8px;background:var(--bg3);overflow-x:auto;flex-shrink:0;}
 .m-thumb{width:54px;height:72px;object-fit:cover;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.15s;opacity:.75;}
 .m-thumb:hover,.m-thumb.active{border-color:var(--red);opacity:1;}
@@ -717,8 +719,11 @@ async function loadProducts() {
     PRODUCTS = data.products.map(p => {
       const imgs = p.images || [];
       const primaryImg = imgs.find(i => i.is_primary) || imgs[0] || null;
+      // A shade can have several pictures. This used to be a plain assignment,
+      // so uploading three photos for one shade kept only the last one and the
+      // other two were never shown anywhere.
       const byShade = {};
-      imgs.forEach(i => { if (i.shade_key) byShade[i.shade_key] = i.url; });
+      imgs.forEach(i => { if (i.shade_key) (byShade[i.shade_key] = byShade[i.shade_key] || []).push(SERVER + i.url); });
       return {
         id: p.id,
         slug: p.slug,
@@ -740,12 +745,27 @@ async function loadProducts() {
         })),
         images: imgs,
         primaryImage: primaryImg ? SERVER + primaryImg.url : null,
-        imagesByShade: Object.fromEntries(Object.entries(byShade).map(([k,v]) => [k, SERVER + v])),
+        imagesByShade: byShade,
+        looseImages: imgs.filter(i => !i.shade_key).map(i => SERVER + i.url),
       };
     }).filter(p => p.variants.length > 0);
   } catch (e) {
     console.error('Failed to load products from API:', e);
   }
+}
+
+// Every picture for a shade, in upload order with the primary first. Falls
+// back to pictures not tied to a shade, then to the product's primary, so a
+// shade with no photos of its own still shows something.
+function shadeImages(p, shadeKey) {
+  const own = p.imagesByShade?.[shadeKey] || [];
+  if (own.length) return own;
+  if (p.looseImages?.length) return p.looseImages;
+  return p.primaryImage ? [p.primaryImage] : [];
+}
+
+function shadeImage(p, shadeKey) {
+  return shadeImages(p, shadeKey)[0] || null;
 }
 
 // ── CART STATE ─────────────────────────────────────────
@@ -913,7 +933,7 @@ function renderProducts() {
     <div class="p-card" id="card-${p.id}">
       <div class="p-img-area">
         ${p.primaryImage
-          ? `<img class="p-real-img" id="cardimg-${p.id}" src="${p.imagesByShade[shade] || p.primaryImage}" alt="${p.name}" />`
+          ? `<img class="p-real-img" id="cardimg-${p.id}" src="${shadeImage(p, shade)}" alt="${p.name}" />`
           : `<canvas id="canvas-${p.id}" width="300" height="400" data-pid="${p.id}" data-type="${p.type}"></canvas>`
         }
         ${p.badge ? `<div class="p-badge">${p.badge}</div>` : ''}
@@ -995,7 +1015,7 @@ function selectCardShade(pid, shadeKey, inStock) {
   // Update image or redraw canvas
   const cardImg = document.getElementById('cardimg-' + pid);
   if (cardImg) {
-    cardImg.src = p.imagesByShade[shadeKey] || p.primaryImage;
+    cardImg.src = shadeImage(p, shadeKey);
   } else {
     const canvas = document.getElementById('canvas-' + pid);
     if (canvas) drawHairExtension(canvas, shadeKey, p.type);
@@ -1029,7 +1049,7 @@ function renderHighlights() {
     return `
     <div class="hl-card" style="cursor:pointer" onclick="openModal('${p.id}')">
       ${p.primaryImage
-        ? `<img src="${p.imagesByShade[shade]||p.primaryImage}" alt="${p.name}" style="display:block;width:100%;aspect-ratio:3/4;object-fit:cover;" />`
+        ? `<img src="${shadeImage(p, shade)}" alt="${p.name}" style="display:block;width:100%;aspect-ratio:3/4;object-fit:cover;" />`
         : `<canvas id="hlcanvas-${p.id}" width="380" height="506"></canvas>`
       }
       <div class="hl-info">
@@ -1081,7 +1101,7 @@ function pickShade(key) {
   if (nameEl) nameEl.textContent = shadeObj.name;
 
   const preview = document.querySelector('.shade-preview');
-  const shadeImg = PRODUCTS.map(p => p.imagesByShade?.[key]).find(Boolean);
+  const shadeImg = PRODUCTS.map(p => (p.imagesByShade?.[key] || [])[0]).find(Boolean);
   if (shadeImg) {
     preview.innerHTML = `<img src="${shadeImg}" alt="${shadeObj.name}" />`;
   } else {
@@ -1145,23 +1165,31 @@ function openModal(pid) {
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
+  renderModalImages(p, modalCurrentShade);
+  renderModalContent(p, modalCurrentShade);
+}
+
+// The gallery belongs to the selected shade. It used to list every picture on
+// the product at once, so the thumbnails disagreed with the chosen shade and
+// clicking one showed a different colour than the shade still highlighted.
+function renderModalImages(p, shade) {
   const imgCol = document.querySelector('.modal-img-col');
-  if (p.images && p.images.length > 0) {
-    const current = p.imagesByShade[modalCurrentShade] || p.primaryImage;
-    imgCol.innerHTML = `
-      <img class="m-main-img" id="modalMainImg" src="${current}" alt="${p.name}" />
-      ${p.images.length > 1 ? `<div class="m-thumbs-row">${p.images.map(img => {
-        const src = API_ORIGIN + img.url;
-        return `<img class="m-thumb${src === current ? ' active' : ''}" src="${src}" data-url="${src}" onclick="switchModalImage('${src}')" />`;
-      }).join('')}</div>` : ''}
-    `;
-  } else {
+  if (!imgCol) return;
+
+  const shots = shadeImages(p, shade);
+  if (!shots.length) {
     imgCol.innerHTML = `<canvas id="modalCanvas" width="440" height="586"></canvas>`;
     const mc = document.getElementById('modalCanvas');
-    if (mc) drawHairExtension(mc, modalCurrentShade, p.type);
+    if (mc) drawHairExtension(mc, shade, p.type);
+    return;
   }
 
-  renderModalContent(p, modalCurrentShade);
+  imgCol.innerHTML = `
+    <img class="m-main-img" id="modalMainImg" src="${shots[0]}" alt="${p.name}" />
+    ${shots.length > 1 ? `<div class="m-thumbs-row">${shots.map((src, i) =>
+      `<img class="m-thumb${i === 0 ? ' active' : ''}" src="${src}" data-url="${src}" onclick="switchModalImage('${src}')" />`
+    ).join('')}</div>` : ''}
+  `;
 }
 
 function switchModalImage(url) {
@@ -1207,13 +1235,7 @@ function switchModalShade(pid, shadeKey) {
   const p = PRODUCTS.find(x => x.id === pid);
   if (!p) return;
   modalCurrentShade = shadeKey;
-  if (p.images && p.images.length > 0) {
-    const url = p.imagesByShade[shadeKey] || p.primaryImage;
-    if (url) switchModalImage(url);
-  } else {
-    const mc = document.getElementById('modalCanvas');
-    if (mc) drawHairExtension(mc, shadeKey, p.type);
-  }
+  renderModalImages(p, shadeKey);   // rebuilds the thumbnails for the new shade
   renderModalContent(p, shadeKey);
 }
 
