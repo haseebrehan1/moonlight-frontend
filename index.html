@@ -152,11 +152,10 @@ nav{background:var(--white);border-bottom:1px solid var(--border);position:stick
 .p-badge.highlight{background:var(--gold);}
 .p-logo-wm{position:absolute;bottom:10px;right:10px;width:30px;height:30px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .p-logo-wm img{width:22px;height:22px;border-radius:50%;object-fit:cover;}
-.p-hover-btns{position:absolute;inset:0;background:rgba(26,17,8,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .3s;pointer-events:none;}
-.p-card:hover .p-hover-btns{opacity:1;pointer-events:all;}
-.p-qv-btn{background:#fff;color:var(--ink);border:none;padding:11px 28px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;transition:all .2s;font-family:'DM Sans',sans-serif;}
-.p-qv-btn:hover{background:var(--red);color:#fff;}
-.p-wishlist-btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);padding:8px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;font-family:'DM Sans',sans-serif;}
+/* The card itself opens the product. There is no hover overlay: on a phone
+   the first tap only triggered :hover, so it showed a "Quick View" button
+   instead of opening anything, and a second tap was needed. */
+.p-card{cursor:pointer;}
 
 /* shade swatches on card */
 .p-shades-row{display:flex;align-items:center;gap:7px;padding:12px 14px 0;flex-wrap:wrap;}
@@ -337,9 +336,16 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 
 .modal-img-col{background:var(--bg2);display:flex;flex-direction:column;}
 .modal-img-col canvas{display:block;width:100%;aspect-ratio:3/4;}
-/* contain rather than cover: a photo that isn't 3:4 is shown whole instead of
+/* Horizontal, snapping strip of a shade's photos — swipe on a phone, drag or
+   use the dots/thumbnails on a desktop.
+   contain rather than cover: a photo that isn't 3:4 is shown whole instead of
    having its edges cropped away. The cards keep cover so the grid stays even. */
-.modal-img-col img.m-main-img{display:block;width:100%;aspect-ratio:3/4;object-fit:contain;background:var(--bg3);flex:1;}
+.m-gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.m-gallery::-webkit-scrollbar{display:none;}
+.modal-img-col img.m-main-img{display:block;flex:0 0 100%;width:100%;aspect-ratio:3/4;object-fit:contain;background:var(--bg3);scroll-snap-align:center;}
+.m-dots{display:flex;justify-content:center;gap:7px;padding:10px 0 2px;background:var(--bg2);}
+.m-dot-nav{width:7px;height:7px;border-radius:50%;background:var(--border2);cursor:pointer;transition:.2s;}
+.m-dot-nav.active{background:var(--red);transform:scale(1.3);}
 .m-thumbs-row{display:flex;gap:6px;padding:8px;background:var(--bg3);overflow-x:auto;flex-shrink:0;}
 .m-thumb{width:54px;height:72px;object-fit:cover;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.15s;opacity:.75;}
 .m-thumb:hover,.m-thumb.active{border-color:var(--red);opacity:1;}
@@ -1157,7 +1163,7 @@ function renderProducts() {
     const inStock = variant ? variant.inStock : true;
     const badgeClass = p.badge === 'Bestseller' ? '' : p.badge === 'Premium' || p.badge === 'New' ? '' : '';
     return `
-    <div class="p-card" id="card-${p.id}">
+    <div class="p-card" id="card-${p.id}" onclick="openModal('${p.id}')">
       <div class="p-img-area">
         ${p.primaryImage
           ? `<img class="p-real-img" id="cardimg-${p.id}" src="${shadeImage(p, shade)}" alt="${p.name}" />`
@@ -1165,17 +1171,13 @@ function renderProducts() {
         }
         ${p.badge ? `<div class="p-badge">${p.badge}</div>` : ''}
         <div class="p-logo-wm"><img src="${LOGO_URI}" alt="ML"></div>
-        <div class="p-hover-btns">
-          <button class="p-qv-btn" onclick="openModal('${p.id}')">Quick View</button>
-          <button class="p-wishlist-btn" onclick="event.stopPropagation()">♡ Wishlist</button>
-        </div>
       </div>
       <div class="p-shades-row" id="shades-${p.id}">
         ${p.variants.map(v => `
           <div class="shade-swatch${shade === v.shade ? ' active' : ''}"
             style="background:${getSwatchBg(v.shade)};opacity:${v.inStock===false?0.38:1}"
             title="${(SHADES[v.shade]||SHADES[Object.keys(SHADES)[0]]).name}${v.inStock===false?' (Out of Stock)':''}"
-            onclick="selectCardShade('${p.id}','${v.shade}',${v.inStock!==false})"
+            onclick="event.stopPropagation();selectCardShade('${p.id}','${v.shade}',${v.inStock!==false})"
           ></div>`).join('')}
       </div>
       <div class="p-info">
@@ -1186,7 +1188,7 @@ function renderProducts() {
         <div class="p-bottom">
           <div class="p-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
           <button class="p-add${!inStock?' oos':''}" id="padd-${p.id}"
-            onclick="${inStock ? `addToCart('${p.id}','${shade}')` : ''}"
+            onclick="event.stopPropagation();${inStock ? `addToCart('${p.id}','${shade}');openCart()` : ''}"
             title="${inStock ? 'Add to cart' : 'Out of stock'}">
             ${inStock ? '+' : '✕'}
           </button>
@@ -1711,19 +1713,43 @@ function renderModalImages(p, shade) {
     return;
   }
 
+  // A swipeable strip rather than one fixed image: on a phone the thumbnails
+  // sit below the fold, so there was no visible way to reach the other photos.
   imgCol.innerHTML = `
-    <img class="m-main-img" id="modalMainImg" src="${shots[0]}" alt="${p.name}" />
-    ${shots.length > 1 ? `<div class="m-thumbs-row">${shots.map((src, i) =>
-      `<img class="m-thumb${i === 0 ? ' active' : ''}" src="${src}" data-url="${src}" onclick="switchModalImage('${src}')" />`
-    ).join('')}</div>` : ''}
+    <div class="m-gallery" id="mGallery">
+      ${shots.map((src, i) => `<img class="m-main-img" src="${src}" alt="${p.name}" data-i="${i}" />`).join('')}
+    </div>
+    ${shots.length > 1 ? `
+      <div class="m-dots" id="mDots">${shots.map((_, i) =>
+        `<span class="m-dot-nav${i === 0 ? ' active' : ''}" onclick="goToImage(${i})"></span>`).join('')}</div>
+      <div class="m-thumbs-row">${shots.map((src, i) =>
+        `<img class="m-thumb${i === 0 ? ' active' : ''}" src="${src}" data-i="${i}" onclick="goToImage(${i})" />`
+      ).join('')}</div>` : ''}
   `;
+
+  const gal = document.getElementById('mGallery');
+  if (gal && shots.length > 1) gal.addEventListener('scroll', syncGalleryPosition, { passive: true });
 }
 
-function switchModalImage(url) {
-  const mainImg = document.getElementById('modalMainImg');
-  if (mainImg) mainImg.src = url;
-  document.querySelectorAll('.m-thumb').forEach(t => t.classList.toggle('active', t.dataset.url === url));
+// Scrolls the strip to one image; used by both the dots and the thumbnails.
+function goToImage(i) {
+  const gal = document.getElementById('mGallery');
+  if (!gal) return;
+  gal.scrollTo({ left: gal.clientWidth * i, behavior: 'smooth' });
+  markActiveImage(i);
 }
+
+function syncGalleryPosition() {
+  const gal = document.getElementById('mGallery');
+  if (!gal || !gal.clientWidth) return;
+  markActiveImage(Math.round(gal.scrollLeft / gal.clientWidth));
+}
+
+function markActiveImage(i) {
+  document.querySelectorAll('#mDots .m-dot-nav').forEach((d, n) => d.classList.toggle('active', n === i));
+  document.querySelectorAll('.m-thumb').forEach((t, n) => t.classList.toggle('active', n === i));
+}
+
 
 function renderModalContent(p, shade) {
   const variant = p.variants.find(v => v.shade === shade);

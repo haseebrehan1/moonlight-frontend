@@ -9,7 +9,7 @@
    While this is empty, every WhatsApp button and link on the site stays
    hidden, so customers are never shown a number that does not answer.
    Set it here once and it applies everywhere.                            */
-const WHATSAPP = '';
+const WHATSAPP = '923104463808';
 
 /* Delivery. These are what the customer is shown; the server recalculates
    the real figures on every order, so change them in both places.        */
