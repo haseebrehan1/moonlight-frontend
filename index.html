@@ -18,6 +18,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 }(window, document, 'ttq');
 </script>
 <!-- TikTok Pixel Code End -->
+<script src="shop-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
@@ -250,6 +251,88 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .modal-overlay{position:fixed;inset:0;background:rgba(26,17,8,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
 .modal-box{background:var(--white);max-width:880px;width:100%;max-height:92vh;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;position:relative;}
 .modal-close{position:absolute;top:14px;right:14px;background:var(--ink);color:#fff;border:none;width:30px;height:30px;font-size:14px;z-index:10;display:flex;align-items:center;justify-content:center;}
+/* ── CART DRAWER ─────────────────────────────────── */
+.drawer-backdrop{position:fixed;inset:0;background:rgba(20,14,10,.45);opacity:0;visibility:hidden;transition:.25s;z-index:900;}
+.drawer-backdrop.show{opacity:1;visibility:visible;}
+.cart-drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:var(--white);z-index:950;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.12);}
+.cart-drawer.open{transform:translateX(0);}
+.cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.cart-head h3{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;color:var(--ink);}
+.cart-close{background:none;border:none;font-size:17px;color:var(--ink3);cursor:pointer;padding:4px 8px;}
+.cart-close:hover{color:var(--red);}
+.cart-body{flex:1;overflow-y:auto;padding:8px 22px;}
+.cart-foot{border-top:1px solid var(--border);padding:18px 22px 22px;flex-shrink:0;background:var(--bg);}
+.cart-line{display:grid;grid-template-columns:64px 1fr auto;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);}
+.cart-line-img{width:64px;height:84px;object-fit:cover;background:var(--bg2);}
+.cart-line-noimg{display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:20px;}
+.cart-line-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35;}
+.cart-line-shade{font-size:11px;color:var(--red);margin-top:2px;}
+.cart-line-price{font-size:11px;color:var(--ink3);margin-top:2px;}
+.cart-line-total{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;}
+.qty-row{display:flex;align-items:center;gap:8px;margin-top:9px;}
+.qty-btn{width:24px;height:24px;border:1px solid var(--border2);background:var(--white);color:var(--ink);font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{border-color:var(--red);color:var(--red);}
+.qty-val{font-size:13px;font-weight:600;min-width:18px;text-align:center;}
+.cart-remove{background:none;border:none;font-size:10.5px;color:var(--ink3);text-decoration:underline;cursor:pointer;margin-left:6px;}
+.cart-remove:hover{color:var(--red);}
+.cart-empty{text-align:center;padding:64px 20px;}
+.cart-empty-icon{font-size:38px;margin-bottom:14px;opacity:.4;}
+.cart-empty p{font-size:13px;color:var(--ink3);margin-bottom:22px;}
+.sum-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink2);margin-bottom:9px;}
+.sum-row .free{color:#16a34a;font-weight:700;letter-spacing:.5px;}
+.sum-note{font-size:10.5px;color:var(--ink3);margin:-4px 0 10px;}
+.sum-total{font-size:16px;font-weight:700;color:var(--ink);padding-top:11px;border-top:1px solid var(--border);margin-bottom:16px;}
+.btn-block{width:100%;justify-content:center;}
+.sum-cod{text-align:center;font-size:10.5px;color:var(--ink3);margin-top:10px;letter-spacing:.5px;}
+
+/* ── PRODUCT ACTIONS ─────────────────────────────── */
+.m-actions{display:flex;flex-direction:column;gap:9px;}
+.m-buy-btn{background:var(--ink);color:#fff;border:none;padding:15px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background .2s;font-family:'DM Sans',sans-serif;width:100%;}
+.m-buy-btn:hover{background:var(--red);}
+.m-wa-btn{background:#fff;color:#128C7E;border:1.5px solid #128C7E;padding:14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:600;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif;width:100%;display:flex;align-items:center;justify-content:center;gap:9px;}
+.m-wa-btn:hover{background:#128C7E;color:#fff;}
+
+/* ── CHECKOUT ────────────────────────────────────── */
+.co-box{background:var(--white);width:100%;max-width:940px;max-height:92vh;overflow-y:auto;position:relative;}
+.co-head{padding:30px 34px 22px;border-bottom:1px solid var(--border);}
+.co-title{font-family:'Playfair Display',serif;font-size:27px;font-weight:600;color:var(--ink);}
+.co-sub{font-size:12.5px;color:var(--ink3);margin-top:5px;}
+.co-grid{display:grid;grid-template-columns:1fr 340px;gap:34px;padding:28px 34px 34px;}
+.co-fields{display:flex;flex-direction:column;gap:16px;}
+.fld{display:flex;flex-direction:column;gap:6px;}
+.fld>span{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--ink2);}
+.fld>span b{color:var(--red);}
+.fld>span i{font-style:normal;color:var(--ink3);font-weight:400;text-transform:none;letter-spacing:0;}
+.fld input,.fld textarea{border:1px solid var(--border2);background:var(--white);padding:12px 14px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;transition:border-color .2s;width:100%;resize:vertical;}
+.fld input:focus,.fld textarea:focus{border-color:var(--red);}
+.fld small{font-size:10.5px;color:var(--ink3);}
+.co-error{background:#fdecea;border-left:3px solid var(--red);color:#8c1d18;font-size:12.5px;padding:11px 14px;}
+.co-side{background:var(--bg2);padding:24px;align-self:start;position:sticky;top:0;}
+.co-side-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:16px;}
+.co-line{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--ink2);padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);}
+.co-pay{display:flex;gap:11px;align-items:flex-start;background:var(--white);border:1px solid var(--border);padding:13px;margin:16px 0;}
+.co-pay-badge{width:22px;height:22px;border-radius:50%;background:#16a34a;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.co-pay b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px;}
+.co-pay span{font-size:11px;color:var(--ink3);line-height:1.45;}
+.co-terms{font-size:10.5px;color:var(--ink3);text-align:center;margin-top:12px;line-height:1.6;}
+.co-terms a{color:var(--red);text-decoration:underline;}
+.co-done{text-align:center;padding:56px 34px;max-width:520px;margin:0 auto;}
+.co-done-tick{width:60px;height:60px;border-radius:50%;background:#16a34a;color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;}
+.co-done h3{font-family:'Playfair Display',serif;font-size:27px;font-weight:600;color:var(--ink);margin-bottom:10px;}
+.co-done p{font-size:13.5px;color:var(--ink2);line-height:1.65;margin-bottom:22px;}
+.co-done-box{background:var(--bg2);padding:18px 22px;margin-bottom:18px;}
+.co-done-box div{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;}
+.co-done-box span{color:var(--ink3);}
+.co-done-box b{color:var(--ink);font-weight:700;}
+.co-done-note{font-size:11.5px!important;color:var(--ink3)!important;}
+#coWaWrap{margin-bottom:10px;}
+#coWaWrap a{display:flex;}
+@media(max-width:860px){
+  .co-grid{grid-template-columns:1fr;gap:24px;padding:22px;}
+  .co-head{padding:24px 22px 18px;}
+  .co-side{position:static;}
+}
+
 .modal-img-col{background:var(--bg2);display:flex;flex-direction:column;}
 .modal-img-col canvas{display:block;width:100%;aspect-ratio:3/4;}
 /* contain rather than cover: a photo that isn't 3:4 is shown whole instead of
@@ -368,7 +451,7 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
     </ul>
     <div class="nav-right">
       <input class="nav-search" type="text" placeholder="Search extensions...">
-      <button class="nav-cart-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+      <button class="nav-cart-btn" onclick="openCart()">
         🛒 Cart <span class="cart-count" id="cartCount">0</span>
       </button>
     </div>
@@ -610,17 +693,17 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
       <div class="foot-col">
         <h4>Information</h4>
         <ul>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Shipping Policy</a></li>
-          <li><a href="#">Return Policy</a></li>
-          <li><a href="#">FAQs</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="returns.html#delivery">Shipping &amp; Delivery</a></li>
+          <li><a href="returns.html">Return &amp; Refund Policy</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
         </ul>
       </div>
       <div class="foot-col">
         <h4>Contact</h4>
         <ul>
           <li><a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank">Instagram</a></li>
-          <li><a href="https://wa.me/923000000000">WhatsApp</a></li>
+          <li class="wa-only" style="display:none"><a data-wa href="#" target="_blank">WhatsApp</a></li>
           <li><a href="#">Lahore, Pakistan</a></li>
         </ul>
       </div>
@@ -629,11 +712,94 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
       <p>© 2025 Moonlight Accessories. All rights reserved.</p>
       <div class="foot-socials">
         <a href="https://www.instagram.com/moonlightaccessories.pk" target="_blank">Instagram</a>
-        <a href="https://wa.me/923000000000">WhatsApp</a>
+        <a class="wa-only" data-wa style="display:none" href="#" target="_blank">WhatsApp</a>
       </div>
     </div>
   </div>
 </footer>
+
+<!-- CART DRAWER -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeCart()"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+  <div class="cart-head">
+    <h3>Your Cart</h3>
+    <button class="cart-close" onclick="closeCart()" aria-label="Close cart">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot" id="cartFoot"></div>
+</aside>
+
+<!-- CHECKOUT -->
+<div class="modal-overlay" id="checkoutOverlay" style="display:none" onclick="handleCheckoutBgClick(event)">
+  <div class="co-box">
+    <button class="modal-close" onclick="closeCheckout()" aria-label="Close">✕</button>
+
+    <div id="coForm">
+      <div class="co-head">
+        <div class="co-title">Checkout</div>
+        <div class="co-sub">Cash on Delivery — pay the rider when your parcel arrives</div>
+      </div>
+      <div class="co-grid">
+        <div class="co-fields">
+          <div class="co-error" id="coError" style="display:none"></div>
+          <label class="fld">
+            <span>Full Name <b>*</b></span>
+            <input type="text" id="coName" autocomplete="name" placeholder="e.g. Ayesha Khan" />
+          </label>
+          <label class="fld">
+            <span>Mobile Number <b>*</b></span>
+            <input type="tel" id="coPhone" autocomplete="tel" placeholder="03001234567" />
+            <small>We'll call this number to confirm your order</small>
+          </label>
+          <label class="fld">
+            <span>Delivery Address <b>*</b></span>
+            <textarea id="coAddress" rows="3" autocomplete="street-address" placeholder="House / flat number, street, area, landmark"></textarea>
+          </label>
+          <label class="fld">
+            <span>City <b>*</b></span>
+            <input type="text" id="coCity" autocomplete="address-level2" placeholder="e.g. Lahore" />
+          </label>
+          <label class="fld">
+            <span>Email <i>(optional)</i></span>
+            <input type="email" id="coEmail" autocomplete="email" placeholder="For your order confirmation" />
+          </label>
+          <label class="fld">
+            <span>Order Notes <i>(optional)</i></span>
+            <textarea id="coNotes" rows="2" placeholder="Anything we should know about the delivery?"></textarea>
+          </label>
+        </div>
+        <div class="co-side">
+          <div class="co-side-title">Order Summary</div>
+          <div id="coSummary"></div>
+          <div class="co-pay">
+            <div class="co-pay-badge">✓</div>
+            <div>
+              <b>Cash on Delivery</b>
+              <span>The only payment method — nothing is charged online.</span>
+            </div>
+          </div>
+          <button class="btn-primary btn-block" id="coSubmit" onclick="submitOrder()">Place Order — Cash on Delivery</button>
+          <div class="co-terms">By ordering you agree to our <a href="returns.html" target="_blank">Return Policy</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="coDone" style="display:none">
+      <div class="co-done">
+        <div class="co-done-tick">✓</div>
+        <h3>Order Confirmed</h3>
+        <p>Thank you! We've received your order and will call you shortly to confirm.</p>
+        <div class="co-done-box">
+          <div><span>Order Number</span><b id="coOrderNum">—</b></div>
+          <div><span>Total (Cash on Delivery)</span><b id="coOrderTotal">—</b></div>
+        </div>
+        <p class="co-done-note">Please keep the exact amount ready for the rider. Delivery usually takes 2–4 working days.</p>
+        <div id="coWaWrap"></div>
+        <button class="btn-primary btn-block" onclick="closeCheckout()">Continue Shopping</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" style="display:none" onclick="handleModalBgClick(event)">
@@ -653,7 +819,7 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 </div>
 
 <!-- WA FLOAT -->
-<a href="https://wa.me/923000000000" class="wa-float" title="Order on WhatsApp">
+<a data-wa href="#" target="_blank" class="wa-float wa-only" style="display:none" title="Order on WhatsApp">
   <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
 
@@ -782,9 +948,37 @@ function shadeImage(p, shadeKey) {
   return shadeImages(p, shadeKey)[0] || null;
 }
 
+// WHATSAPP, SHIP_FEE, FREE_SHIP, waLink() and applyWhatsAppLinks() all come
+// from shop-config.js, which the policy pages share. Change the number there.
+
 // ── CART STATE ─────────────────────────────────────────
+// One line per variant, with a quantity. Kept in localStorage so a customer
+// who reloads or comes back later still has their basket.
 let cart = [];
-let cartCount = 0;
+
+function loadCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('ml_cart') || '[]');
+    cart = Array.isArray(saved) ? saved.filter(l => l && l.variantId && l.qty > 0) : [];
+  } catch (e) { cart = []; }
+}
+
+function saveCart() {
+  try { localStorage.setItem('ml_cart', JSON.stringify(cart)); } catch (e) {}
+  updateCartCount();
+}
+
+function cartCountTotal() { return cart.reduce((n, l) => n + l.qty, 0); }
+function cartSubtotal()   { return cart.reduce((n, l) => n + l.price * l.qty, 0); }
+function cartShipping()   { return cart.length === 0 || cartSubtotal() >= FREE_SHIP ? 0 : SHIP_FEE; }
+function cartTotal()      { return cartSubtotal() + cartShipping(); }
+
+function updateCartCount() {
+  const el = document.getElementById('cartCount');
+  if (el) el.textContent = cartCountTotal();
+}
+
+const money = n => 'Rs. ' + Number(n).toLocaleString('en-PK');
 
 // ── CANVAS DRAWING ENGINE ────────────────────────────
 // Draws realistic hair strand illustrations using HTML5 Canvas
@@ -1163,18 +1357,229 @@ function trackTikTok(event, p, shadeName) {
   } catch (e) { /* analytics must never break the storefront */ }
 }
 
-function addToCart(pid, shade) {
+function addToCart(pid, shade, opts = {}) {
   const p = PRODUCTS.find(x => x.id === pid);
-  if (!p) return;
+  if (!p) return false;
   const variant = p.variants.find(v => v.shade === shade);
-  const variantId = variant?.variantId;
-  const shadeName = (SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name;
-  cart.push({ pid, shade, variantId, name: p.name, shade_name: shadeName, price: p.price });
+  if (!variant || variant.inStock === false) {
+    showToast('That shade is out of stock.');
+    return false;
+  }
+  const shadeName = (SHADES[shade] || SHADES[Object.keys(SHADES)[0]]).name;
+
+  // Same shade twice is one line with a bigger quantity, not two lines.
+  const line = cart.find(l => l.variantId === variant.variantId);
+  if (line) line.qty += 1;
+  else cart.push({
+    pid, shade, variantId: variant.variantId, name: p.name,
+    shade_name: shadeName, price: p.price, qty: 1,
+    img: shadeImage(p, shade),
+  });
+
+  saveCart();
+  renderCart();
   trackTikTok('AddToCart', p, shadeName);
-  cartCount++;
-  const el = document.getElementById('cartCount');
-  if (el) el.textContent = cartCount;
-  showToast(`${p.name} (${shadeName}) added to cart!`);
+  if (!opts.silent) showToast(`${p.name} (${shadeName}) added to cart`);
+  return true;
+}
+
+// "Buy Now" is add-to-cart that goes straight to the form.
+function buyNow(pid, shade) {
+  if (!addToCart(pid, shade, { silent: true })) return;
+  closeModal();
+  openCheckout();
+}
+
+function inquireWhatsApp(pid, shade) {
+  const p = PRODUCTS.find(x => x.id === pid);
+  if (!p || !WHATSAPP) return;
+  const shadeName = (SHADES[shade] || {}).name || '';
+  window.open(waLink(
+    `Assalam o Alaikum! I'd like to ask about:\n\n` +
+    `*${p.name}*${shadeName ? `\nShade: ${shadeName}` : ''}\nPrice: ${money(p.price)}\n\n` +
+    `Is this available?`
+  ), '_blank');
+}
+
+function setQty(variantId, delta) {
+  const line = cart.find(l => l.variantId === variantId);
+  if (!line) return;
+  line.qty += delta;
+  if (line.qty < 1) cart = cart.filter(l => l.variantId !== variantId);
+  saveCart();
+  renderCart();
+}
+
+function removeLine(variantId) {
+  cart = cart.filter(l => l.variantId !== variantId);
+  saveCart();
+  renderCart();
+}
+
+// ── CART DRAWER ────────────────────────────────────────
+function openCart()  { renderCart(); document.getElementById('cartDrawer').classList.add('open'); document.getElementById('drawerBackdrop').classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeCart() { document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('show'); document.body.style.overflow = ''; }
+
+function renderCart() {
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  if (!body) return;
+  updateCartCount();
+
+  if (!cart.length) {
+    body.innerHTML = `<div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p>Your cart is empty</p>
+      <button class="btn-primary" onclick="closeCart();document.getElementById('products').scrollIntoView({behavior:'smooth'})">Browse Collection</button>
+    </div>`;
+    foot.innerHTML = '';
+    return;
+  }
+
+  body.innerHTML = cart.map(l => `
+    <div class="cart-line">
+      ${l.img ? `<img class="cart-line-img" src="${l.img}" alt="${l.name}">` : `<div class="cart-line-img cart-line-noimg">✦</div>`}
+      <div class="cart-line-info">
+        <div class="cart-line-name">${l.name}</div>
+        <div class="cart-line-shade">${l.shade_name}</div>
+        <div class="cart-line-price">${money(l.price)}</div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="setQty('${l.variantId}',-1)" aria-label="Decrease">−</button>
+          <span class="qty-val">${l.qty}</span>
+          <button class="qty-btn" onclick="setQty('${l.variantId}',1)" aria-label="Increase">+</button>
+          <button class="cart-remove" onclick="removeLine('${l.variantId}')">Remove</button>
+        </div>
+      </div>
+      <div class="cart-line-total">${money(l.price * l.qty)}</div>
+    </div>`).join('');
+
+  const ship = cartShipping();
+  foot.innerHTML = `
+    <div class="sum-row"><span>Subtotal</span><span>${money(cartSubtotal())}</span></div>
+    <div class="sum-row"><span>Delivery</span><span>${ship === 0 ? '<b class="free">FREE</b>' : money(ship)}</span></div>
+    ${ship > 0 ? `<div class="sum-note">Free delivery on orders over ${money(FREE_SHIP)}</div>` : ''}
+    <div class="sum-row sum-total"><span>Total</span><span>${money(cartTotal())}</span></div>
+    <button class="btn-primary btn-block" onclick="openCheckout()">Proceed to Checkout</button>
+    <div class="sum-cod">Cash on Delivery • Pay when it arrives</div>`;
+}
+
+// ── CHECKOUT ───────────────────────────────────────────
+function openCheckout() {
+  if (!cart.length) { showToast('Your cart is empty'); return; }
+  closeCart();
+  document.getElementById('checkoutOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderCheckoutSummary();
+  document.getElementById('coForm').style.display = '';
+  document.getElementById('coDone').style.display = 'none';
+  document.getElementById('coError').style.display = 'none';
+  trackTikTokCart('InitiateCheckout');
+  setTimeout(() => document.getElementById('coName')?.focus(), 100);
+}
+
+function closeCheckout() {
+  document.getElementById('checkoutOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function handleCheckoutBgClick(e) {
+  if (e.target === document.getElementById('checkoutOverlay')) closeCheckout();
+}
+
+function renderCheckoutSummary() {
+  const ship = cartShipping();
+  document.getElementById('coSummary').innerHTML = `
+    ${cart.map(l => `<div class="co-line">
+      <span>${l.name} — ${l.shade_name} <b>×${l.qty}</b></span>
+      <span>${money(l.price * l.qty)}</span>
+    </div>`).join('')}
+    <div class="sum-row"><span>Subtotal</span><span>${money(cartSubtotal())}</span></div>
+    <div class="sum-row"><span>Delivery</span><span>${ship === 0 ? '<b class="free">FREE</b>' : money(ship)}</span></div>
+    <div class="sum-row sum-total"><span>Total to pay</span><span>${money(cartTotal())}</span></div>`;
+}
+
+function showCheckoutError(msg) {
+  const el = document.getElementById('coError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function submitOrder() {
+  const val = id => document.getElementById(id).value.trim();
+  const name = val('coName'), phone = val('coPhone').replace(/[\s-]/g, '');
+  const address = val('coAddress'), city = val('coCity');
+  const email = val('coEmail'), notes = val('coNotes');
+
+  // Same rules the API enforces, checked here so the customer gets a clear
+  // message instead of a validation error from the server.
+  if (!name)                            return showCheckoutError('Please enter your full name.');
+  if (!/^(\+92|0)[0-9]{10}$/.test(phone)) return showCheckoutError('Enter a valid Pakistani mobile number, e.g. 03001234567.');
+  if (!address)                         return showCheckoutError('Please enter your delivery address.');
+  if (!city)                            return showCheckoutError('Please enter your city.');
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) return showCheckoutError('That email address does not look right.');
+  if (!cart.length)                     return showCheckoutError('Your cart is empty.');
+
+  const btn = document.getElementById('coSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Placing your order…';
+  document.getElementById('coError').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        shipping_name: name, shipping_phone: phone, shipping_email: email || undefined,
+        shipping_address: address, shipping_city: city, shipping_notes: notes || undefined,
+        payment_method: 'cod',
+        items: cart.map(l => ({ variant_id: l.variantId, quantity: l.qty })),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const why = data.message || data.errors?.[0]?.msg || 'We could not place your order. Please try again.';
+      showCheckoutError(why);
+      return;
+    }
+
+    const order = data.order || {};
+    trackTikTokCart('CompletePayment', order.order_number);
+
+    document.getElementById('coForm').style.display = 'none';
+    document.getElementById('coDone').style.display = '';
+    document.getElementById('coOrderNum').textContent = order.order_number || '—';
+    document.getElementById('coOrderTotal').textContent = money(order.total ?? cartTotal());
+    document.getElementById('coWaWrap').innerHTML = WHATSAPP
+      ? `<a class="btn-secondary btn-block" target="_blank" href="${waLink(`Hi! I just placed order ${order.order_number}. `)}">Message us on WhatsApp</a>`
+      : '';
+
+    cart = [];
+    saveCart();
+    renderCart();
+  } catch (e) {
+    showCheckoutError('Network problem — please check your connection and try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Place Order — Cash on Delivery';
+  }
+}
+
+// Cart-wide TikTok event, used for checkout start and completed purchase.
+function trackTikTokCart(event, orderNumber) {
+  if (typeof ttq === 'undefined' || !cart.length) return;
+  try {
+    ttq.track(event, {
+      contents: cart.map(l => ({
+        content_id: l.pid, content_name: `${l.name} — ${l.shade_name}`,
+        content_type: 'product', quantity: l.qty, price: l.price,
+      })),
+      value: cartTotal(),
+      currency: 'PKR',
+      ...(orderNumber ? { order_id: orderNumber } : {}),
+    });
+  } catch (e) { /* analytics must never break the shop */ }
 }
 
 function showToast(msg) {
@@ -1260,10 +1665,17 @@ function renderModalContent(p, shade) {
         ${p.features.map(f => `<div class="m-feat">${f}</div>`).join('')}
       </div>
     </div>
-    <button class="m-add-btn${!inStock ? ' oos' : ''}" ${!inStock ? 'disabled' : ''}
-      onclick="${inStock ? `addToCart('${p.id}','${shade}');closeModal()` : ''}">
-      ${inStock ? 'Add to Cart — Rs. ' + p.price.toLocaleString() : 'Sold Out — Choose Another Shade'}
-    </button>
+    <div class="m-actions">
+      <button class="m-add-btn${!inStock ? ' oos' : ''}" ${!inStock ? 'disabled' : ''}
+        onclick="${inStock ? `addToCart('${p.id}','${shade}');closeModal();openCart()` : ''}">
+        ${inStock ? 'Add to Cart — Rs. ' + p.price.toLocaleString() : 'Sold Out — Choose Another Shade'}
+      </button>
+      ${inStock ? `<button class="m-buy-btn" onclick="buyNow('${p.id}','${shade}')">Buy Now</button>` : ''}
+      ${WHATSAPP ? `<button class="m-wa-btn" onclick="inquireWhatsApp('${p.id}','${shade}')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Inquire on WhatsApp
+      </button>` : ''}
+    </div>
   `;
 }
 
@@ -1302,11 +1714,19 @@ document.addEventListener('DOMContentLoaded', () => {
 function closeMob() { mobOpen = false; document.getElementById('mobMenu').classList.remove('open'); }
 
 // ── KEYBOARD ESC ─────────────────────────────────────
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('checkoutOverlay').style.display === 'flex') return closeCheckout();
+  if (document.getElementById('cartDrawer').classList.contains('open')) return closeCart();
+  closeModal();
+});
+
 
 // ── INIT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   drawHero(); // initial canvas while loading
+  loadCart();           // restore the basket from a previous visit
+  renderCart();         // shop-config.js wires the WhatsApp links itself
   await loadShades();   // before products, so swatches resolve on first render
   await loadProducts();
   drawHero(); // update with real image if available
