@@ -278,6 +278,8 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .cart-empty{text-align:center;padding:64px 20px;}
 .cart-empty-icon{font-size:38px;margin-bottom:14px;opacity:.4;}
 .cart-empty p{font-size:13px;color:var(--ink3);margin-bottom:22px;}
+.no-results{grid-column:1/-1;text-align:center;padding:60px 20px;}
+.no-results p{font-size:14px;color:var(--ink3);margin-bottom:20px;}
 .sum-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink2);margin-bottom:9px;}
 .sum-row .free{color:#16a34a;font-weight:700;letter-spacing:.5px;}
 .sum-note{font-size:10.5px;color:var(--ink3);margin:-4px 0 10px;}
@@ -1121,16 +1123,33 @@ function drawHairExtension(canvas, shadeKey, type) {
 
 // ── RENDER PRODUCT GRID ───────────────────────────────
 let activeFilter = 'all';
+let searchTerm = '';
 const cardShadeState = {}; // tracks selected shade per card
 
 function renderProducts() {
   const grid = document.getElementById('prodGrid');
   if (!grid) return;
 
-  const filtered = activeFilter === 'all' ? PRODUCTS
+  let filtered = activeFilter === 'all' ? PRODUCTS
     : activeFilter === 'featured'
       ? PRODUCTS.filter(p => p.featured)
       : PRODUCTS.filter(p => p.category === activeFilter || p.type === activeFilter);
+
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    filtered = filtered.filter(p =>
+      [p.name, p.category, p.type, p.desc,
+       ...p.variants.map(v => (SHADES[v.shade] || {}).name || '')]
+      .join(' ').toLowerCase().includes(q));
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-results">
+      <p>No extensions match ${searchTerm ? `"${searchTerm}"` : 'that filter'}.</p>
+      <button class="btn-secondary" onclick="clearSearch()">Show everything</button>
+    </div>`;
+    return;
+  }
 
   grid.innerHTML = filtered.map(p => {
     const shade = cardShadeState[p.id] || p.defaultShade;
@@ -1240,6 +1259,25 @@ function initFilters() {
       renderProducts();
     });
   });
+
+  // The search box was decorative — typing in it did nothing.
+  const box = document.querySelector('.nav-search');
+  if (!box) return;
+  let typingTimer;
+  box.addEventListener('input', () => {
+    searchTerm = box.value.trim();
+    renderProducts();
+    // Report the search once the customer stops typing, not per keystroke.
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => { if (searchTerm.length > 2) trackSearch(searchTerm); }, 900);
+  });
+}
+
+function clearSearch() {
+  searchTerm = '';
+  const box = document.querySelector('.nav-search');
+  if (box) box.value = '';
+  renderProducts();
 }
 
 // ── HIGHLIGHTS / FEATURED SECTION ────────────────────
@@ -1337,6 +1375,11 @@ function drawHero() {
 }
 
 // ── CART ──────────────────────────────────────────────
+// One identifier per product, used by every TikTok event. These have to match
+// across ViewContent, AddToCart and the order event or TikTok cannot tie them
+// together into a funnel.
+const contentId = p => p.slug || p.id;
+
 // Reports a product event to the TikTok pixel so ads can be attributed and
 // optimised. Guarded and wrapped: if the pixel is blocked, ad-blocked or slow
 // to load, the shop carries on as normal.
@@ -1345,7 +1388,7 @@ function trackTikTok(event, p, shadeName) {
   try {
     ttq.track(event, {
       contents: [{
-        content_id:   p.slug || p.id,
+        content_id:   contentId(p),
         content_name: shadeName ? `${p.name} — ${shadeName}` : p.name,
         content_type: 'product',
         quantity:     1,
@@ -1355,6 +1398,39 @@ function trackTikTok(event, p, shadeName) {
       currency: 'PKR',
     });
   } catch (e) { /* analytics must never break the storefront */ }
+}
+
+function trackSearch(term) {
+  if (typeof ttq === 'undefined') return;
+  try { ttq.track('Search', { search_string: term, currency: 'PKR' }); } catch (e) {}
+}
+
+// ── ADVANCED MATCHING ──────────────────────────────────
+// TikTok can attribute far more accurately when it is given the customer's
+// contact details, but they must be SHA-256 hashed in the browser so the raw
+// values never leave the device. Requires HTTPS (crypto.subtle is unavailable
+// on plain HTTP), and fails quietly if anything is missing.
+async function sha256Hex(value) {
+  if (!value || !window.crypto?.subtle) return undefined;
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// TikTok expects email lowercased and trimmed, and the phone in E.164
+// (+923001234567) before hashing.
+async function identifyCustomer(phone, email) {
+  if (typeof ttq === 'undefined' || typeof ttq.identify !== 'function') return;
+  try {
+    const digits = String(phone || '').replace(/\D/g, '');
+    const e164 = digits.startsWith('92') ? `+${digits}`
+      : digits.startsWith('0') ? `+92${digits.slice(1)}` : digits ? `+${digits}` : '';
+    const payload = {};
+    const [ph, em] = await Promise.all([sha256Hex(e164), sha256Hex(String(email || '').trim().toLowerCase())]);
+    if (ph) payload.phone_number = ph;
+    if (em) payload.email = em;
+    if (Object.keys(payload).length) ttq.identify(payload);
+  } catch (e) { /* never block an order for analytics */ }
 }
 
 function addToCart(pid, shade, opts = {}) {
@@ -1545,7 +1621,9 @@ async function submitOrder() {
     }
 
     const order = data.order || {};
-    trackTikTokCart('CompletePayment', order.order_number);
+    // Identify before the order event so TikTok can match this customer.
+    await identifyCustomer(phone, email);
+    trackTikTokCart(ORDER_EVENT, order.order_number);
 
     document.getElementById('coForm').style.display = 'none';
     document.getElementById('coDone').style.display = '';
@@ -1566,13 +1644,21 @@ async function submitOrder() {
   }
 }
 
-// Cart-wide TikTok event, used for checkout start and completed purchase.
+// The event fired when an order is placed. COD means no money changes hands
+// on the website, so PlaceAnOrder is the accurate one — CompletePayment would
+// claim a payment that only happens later, at the door. Whatever is set here
+// must match the optimisation event chosen in TikTok Ads Manager.
+const ORDER_EVENT = 'PlaceAnOrder';
+
+// Cart-wide TikTok event, used for checkout start and placed orders.
 function trackTikTokCart(event, orderNumber) {
   if (typeof ttq === 'undefined' || !cart.length) return;
   try {
     ttq.track(event, {
       contents: cart.map(l => ({
-        content_id: l.pid, content_name: `${l.name} — ${l.shade_name}`,
+        // Same identifier the product events use, so the funnel joins up.
+        content_id: (PRODUCTS.find(p => p.id === l.pid) || {}).slug || l.pid,
+        content_name: `${l.name} — ${l.shade_name}`,
         content_type: 'product', quantity: l.qty, price: l.price,
       })),
       value: cartTotal(),
