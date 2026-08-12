@@ -946,9 +946,13 @@ async function loadProducts() {
 // back to pictures not tied to a shade, then to the product's primary, so a
 // shade with no photos of its own still shows something.
 function shadeImages(p, shadeKey) {
-  const own = p.imagesByShade?.[shadeKey] || [];
-  if (own.length) return own;
-  if (p.looseImages?.length) return p.looseImages;
+  const own   = p.imagesByShade?.[shadeKey] || [];
+  // Photos uploaded without a shade belong to every shade — a packaging or
+  // model shot that is true of all of them. They follow the shade's own
+  // photos, so the most relevant one still leads.
+  const all   = p.looseImages || [];
+  const shots = [...own, ...all];
+  if (shots.length) return shots;
   return p.primaryImage ? [p.primaryImage] : [];
 }
 
