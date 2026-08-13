@@ -1545,6 +1545,7 @@ function addToCart(pid, shade, opts = {}) {
   saveCart();
   renderCart();
   trackTikTok('AddToCart', p, shadeName);
+  if (typeof trackVisit === 'function') trackVisit('add_to_cart');
   if (!opts.silent) showToast(`${p.name} (${shadeName}) added to cart`);
   return true;
 }
@@ -1640,6 +1641,7 @@ function openCheckout() {
   document.getElementById('coDone').style.display = 'none';
   document.getElementById('coError').style.display = 'none';
   trackTikTokCart('InitiateCheckout');
+  if (typeof trackVisit === 'function') trackVisit('checkout_started');
   setTimeout(() => document.getElementById('coName')?.focus(), 100);
 }
 
@@ -1714,6 +1716,7 @@ async function submitOrder() {
     // Identify before the order event so TikTok can match this customer.
     await identifyCustomer(phone, email);
     trackTikTokCart(ORDER_EVENT, order.order_number);
+    if (typeof trackVisit === 'function') trackVisit('ordered');
 
     document.getElementById('coForm').style.display = 'none';
     document.getElementById('coDone').style.display = '';
@@ -1771,10 +1774,46 @@ function showToast(msg) {
 let modalCurrentShade = null;
 let modalCurrentPid = null;
 
-function openModal(pid) {
+// ── PRODUCT URLS ───────────────────────────────────────
+// Each product has a real address like /product/party-wear-4-piece-straight.
+// nginx serves index.html for any unmatched path, so these are shareable, an
+// ad can point straight at one, and every product view is a distinct page in
+// the visitor stats instead of everything showing as "/".
+const SHOP_TITLE = document.title;
+
+function productUrl(p) { return '/product/' + (p.slug || p.id); }
+
+function setProductUrl(p, replace) {
+  const url = productUrl(p);
+  if (location.pathname === url) return;
+  history[replace ? 'replaceState' : 'pushState']({ pid: p.id }, '', url);
+  document.title = `${p.name} — Moonlight Accessories`;
+}
+
+function clearProductUrl() {
+  if (location.pathname === '/') return;
+  history.pushState({}, '', '/');
+  document.title = SHOP_TITLE;
+}
+
+// Someone landing straight on a product link, or using the back button.
+function openProductFromUrl(replace) {
+  const m = location.pathname.match(/^\/product\/([^/]+)\/?$/);
+  if (!m) { if (modalCurrentPid) closeModal(true); return; }
+  const slug = decodeURIComponent(m[1]);
+  const p = PRODUCTS.find(x => x.slug === slug || x.id === slug);
+  if (p) openModal(p.id, { fromUrl: true, replace: replace });
+  else { history.replaceState({}, '', '/'); document.title = SHOP_TITLE; }
+}
+
+window.addEventListener('popstate', () => openProductFromUrl(true));
+
+function openModal(pid, opts = {}) {
   const p = PRODUCTS.find(x => x.id === pid);
   if (!p) return;
   modalCurrentPid = pid;
+  setProductUrl(p, opts.replace);
+  if (typeof trackVisit === 'function') trackVisit('view_product');
   modalCurrentShade = cardShadeState[pid] || p.defaultShade;
 
   const overlay = document.getElementById('modalOverlay');
@@ -2054,9 +2093,13 @@ function switchModalShade(pid, shadeKey) {
   renderModalContent(p, shadeKey);
 }
 
-function closeModal() {
+// fromHistory is set when the back button caused this, so we do not push
+// another entry and trap the visitor in the page they are trying to leave.
+function closeModal(fromHistory) {
   document.getElementById('modalOverlay').style.display = 'none';
   document.body.style.overflow = '';
+  modalCurrentPid = null;
+  if (!fromHistory) clearProductUrl();
 }
 
 function handleModalBgClick(e) {
@@ -2101,6 +2144,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHighlights();
   initFilters();
   initShadePicker();
+  // Someone may have arrived on a product link straight from an ad.
+  openProductFromUrl(true);
 });
 </script>
 </body>

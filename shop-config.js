@@ -54,24 +54,31 @@ document.addEventListener('DOMContentLoaded', applyWhatsAppLinks);
     }
   } catch (e) { return; }          // private mode with storage blocked: skip
 
-  function ping() {
-    if (document.visibilityState !== 'visible') return;   // no pings from background tabs
+  function ping(event) {
+    // Heartbeats stop for a background tab, but a funnel step is always worth
+    // recording — it happened whether or not the tab is in front afterwards.
+    if (!event && document.visibilityState !== 'visible') return;
     try {
       fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sid: sid,
-          path: location.pathname + location.hash,
+          path: location.pathname + location.search,
           title: document.title,
           referrer: document.referrer || '',
+          event: event || '',
         }),
         keepalive: true,
       }).catch(function () {});
     } catch (e) {}
   }
 
-  document.addEventListener('DOMContentLoaded', ping);
-  document.addEventListener('visibilitychange', ping);
-  setInterval(ping, 60000);        // once a minute keeps "active now" accurate
+  // Called by the shop when the visitor moves to a product, adds to their
+  // cart, opens checkout, or places an order.
+  window.trackVisit = ping;
+
+  document.addEventListener('DOMContentLoaded', function () { ping(); });
+  document.addEventListener('visibilitychange', function () { ping(); });
+  setInterval(function () { ping(); }, 60000);   // keeps "active now" accurate
 })();
