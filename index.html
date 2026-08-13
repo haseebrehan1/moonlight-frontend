@@ -370,6 +370,38 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .m-shade-active{font-size:12px;font-weight:600;color:var(--red);margin-bottom:14px;}
 .m-stars{color:var(--gold);font-size:13px;letter-spacing:2px;margin-bottom:6px;}
 .m-reviews{font-size:11.5px;color:var(--ink3);margin-bottom:16px;}
+.m-reviews a{color:var(--red);text-decoration:underline;}
+.no-rating{color:var(--ink3);font-size:11px;font-family:'DM Sans',sans-serif;}
+
+/* ── REVIEWS ─────────────────────────────────────── */
+.rv-block{margin-top:26px;padding-top:22px;border-top:1px solid var(--border);}
+.rv-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.rv-head h4{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);}
+.rv-write-btn{background:none;border:1px solid var(--border2);color:var(--ink2);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;padding:8px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s;}
+.rv-write-btn:hover{border-color:var(--red);color:var(--red);}
+.rv-form{background:var(--bg2);padding:16px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;}
+.rv-stars-pick{display:flex;align-items:center;gap:4px;}
+.rv-star{font-size:24px;line-height:1;color:var(--border2);cursor:pointer;transition:.15s;}
+.rv-star.on{color:var(--gold,#d4a437);}
+.rv-star:hover{transform:scale(1.15);}
+.rv-stars-label{font-size:11px;color:var(--ink3);margin-left:8px;}
+.rv-form input,.rv-form textarea{border:1px solid var(--border2);background:var(--white);padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;width:100%;resize:vertical;}
+.rv-form input:focus,.rv-form textarea:focus{border-color:var(--red);}
+.rv-submit{background:var(--ink);color:#fff;border:none;padding:12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.rv-submit:hover{background:var(--red);}
+.rv-submit:disabled{opacity:.6;cursor:default;}
+.rv-form-msg{font-size:12px;display:none;}
+.rv-form-msg.bad{display:block;color:var(--red);}
+.rv-form-msg.good{display:block;color:#16a34a;}
+.rv-note{font-size:10px;color:var(--ink3);text-align:center;}
+.rv-item{padding:14px 0;border-bottom:1px solid var(--border);}
+.rv-item:last-child{border-bottom:none;}
+.rv-item-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.rv-item-top strong{font-size:13px;color:var(--ink);}
+.rv-item-stars{color:var(--gold,#d4a437);font-size:12px;letter-spacing:1px;white-space:nowrap;}
+.rv-item-text{font-size:13px;color:var(--ink2);line-height:1.6;margin-top:6px;}
+.rv-item-date{font-size:10.5px;color:var(--ink3);margin-top:6px;}
+.rv-empty,.rv-loading{font-size:12.5px;color:var(--ink3);padding:14px 0;}
 .m-price{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--ink);margin-bottom:20px;}
 .m-price .curr{font-size:15px;font-family:'DM Sans',sans-serif;color:var(--ink2);}
 .m-shade-label{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:10px;}
@@ -939,7 +971,10 @@ async function loadProducts() {
         badge: p.badge,
         price: parseFloat(p.price),
         compare_price: p.compare_price ? parseFloat(p.compare_price) : null,
-        stars: Math.min(5, Math.round(p.avg_rating)) || 5,
+        // No reviews means no rating. This used to fall back to 5 stars, so
+        // every unreviewed product displayed a perfect score based on nothing.
+        rating: parseFloat(p.avg_rating) || 0,
+        stars: Math.min(5, Math.round(parseFloat(p.avg_rating) || 0)),
         reviews: p.review_count || 0,
         featured: p.is_featured,
         defaultShade: p.variants[0]?.shade_key || Object.keys(SHADES)[0],
@@ -1207,7 +1242,9 @@ function renderProducts() {
         <div class="p-cat">${p.type} Extension</div>
         <div class="p-name">${p.name}</div>
         <div class="p-shade-label" id="slabel-${p.id}">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
-        <div class="p-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}<span>(${p.reviews})</span></div>
+        <div class="p-stars">${p.reviews
+          ? `${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}<span>${p.rating.toFixed(1)} (${p.reviews})</span>`
+          : '<span class="no-rating">No reviews yet</span>'}</div>
         <div class="p-bottom">
           ${priceHtml(p, 'p-price')}
           <button class="p-add${!inStock?' oos':''}" id="padd-${p.id}"
@@ -1806,8 +1843,10 @@ function renderModalContent(p, shade) {
       <div class="m-cat">${p.type.toUpperCase()} EXTENSION</div>
       <div class="m-name">${p.name}</div>
       <div class="m-shade-active">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
-      <div class="m-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}</div>
-      <div class="m-reviews">${p.reviews > 0 ? p.reviews + ' verified reviews' : 'Be the first to review'}</div>
+      ${p.reviews ? `<div class="m-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}</div>` : ''}
+      <div class="m-reviews">${p.reviews
+        ? `<a href="#reviews-block" onclick="scrollToReviews(event)">${p.rating.toFixed(1)} out of 5 — ${p.reviews} review${p.reviews === 1 ? '' : 's'}</a>`
+        : 'No reviews yet — be the first to write one'}</div>
       ${priceHtml(p, 'm-price')}
       <div class="m-shade-label">Select Shade</div>
       <div class="m-shade-chips">
@@ -1822,6 +1861,27 @@ function renderModalContent(p, shade) {
       <div class="m-feats">
         ${p.features.map(f => `<div class="m-feat">${f}</div>`).join('')}
       </div>
+
+      <div class="rv-block" id="reviews-block">
+        <div class="rv-head">
+          <h4>Customer Reviews</h4>
+          <button class="rv-write-btn" onclick="toggleReviewForm()">Write a review</button>
+        </div>
+
+        <form class="rv-form" id="rvForm" style="display:none" onsubmit="submitReview(event,'${p.id}')">
+          <div class="rv-stars-pick" id="rvStars">
+            ${[1,2,3,4,5].map(n => `<span class="rv-star" data-n="${n}" onclick="pickRating(${n})">☆</span>`).join('')}
+            <span class="rv-stars-label" id="rvStarsLabel">Tap to rate</span>
+          </div>
+          <input type="text" id="rvName" placeholder="Your name" maxlength="80" />
+          <textarea id="rvComment" rows="3" placeholder="How did you find the quality, shade and fit?" maxlength="1000"></textarea>
+          <div class="rv-form-msg" id="rvMsg"></div>
+          <button type="submit" class="rv-submit" id="rvSubmit">Submit Review</button>
+          <div class="rv-note">Reviews are checked before they appear.</div>
+        </form>
+
+        <div id="rvList"><div class="rv-loading">Loading reviews…</div></div>
+      </div>
     </div>
     <div class="m-actions">
       <button class="m-add-btn${!inStock ? ' oos' : ''}" ${!inStock ? 'disabled' : ''}
@@ -1835,6 +1895,103 @@ function renderModalContent(p, shade) {
       </button>` : ''}
     </div>
   `;
+
+  // This rebuilds the review block too, so its contents are refetched here
+  // rather than only when the modal first opens.
+  rvRating = 0;
+  loadReviews(p.id);
+}
+
+// ── REVIEWS ────────────────────────────────────────────
+let rvRating = 0;
+
+// Review text is written by the public, so it is inserted as text, never markup.
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function scrollToReviews(e) {
+  e.preventDefault();
+  document.getElementById('reviews-block')?.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function toggleReviewForm() {
+  const f = document.getElementById('rvForm');
+  if (!f) return;
+  f.style.display = f.style.display === 'none' ? '' : 'none';
+  if (f.style.display === '') document.getElementById('rvName')?.focus();
+}
+
+function pickRating(n) {
+  rvRating = n;
+  document.querySelectorAll('#rvStars .rv-star').forEach(s => {
+    s.textContent = Number(s.dataset.n) <= n ? '★' : '☆';
+    s.classList.toggle('on', Number(s.dataset.n) <= n);
+  });
+  const label = document.getElementById('rvStarsLabel');
+  if (label) label.textContent = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'][n];
+}
+
+async function loadReviews(productId) {
+  const list = document.getElementById('rvList');
+  if (!list) return;
+  list.innerHTML = `<div class="rv-loading">Loading reviews…</div>`;
+  try {
+    const data = await (await fetch(`${API_BASE}/products/${productId}/reviews`)).json();
+    const reviews = data.reviews || [];
+    if (!reviews.length) {
+      list.innerHTML = `<div class="rv-empty">No reviews yet. If you've bought this, yours would be the first.</div>`;
+      return;
+    }
+    list.innerHTML = reviews.map(r => `
+      <div class="rv-item">
+        <div class="rv-item-top">
+          <strong>${esc(r.reviewer_name || r.full_name || 'Customer')}</strong>
+          <span class="rv-item-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+        </div>
+        ${r.comment ? `<p class="rv-item-text">${esc(r.comment)}</p>` : ''}
+        <div class="rv-item-date">${new Date(r.created_at).toLocaleDateString('en-PK', { year:'numeric', month:'short', day:'numeric' })}</div>
+      </div>`).join('');
+  } catch (e) {
+    list.innerHTML = `<div class="rv-empty">Could not load reviews just now.</div>`;
+  }
+}
+
+async function submitReview(e, productId) {
+  e.preventDefault();
+  const msg = document.getElementById('rvMsg');
+  const btn = document.getElementById('rvSubmit');
+  const name = document.getElementById('rvName').value.trim();
+  const comment = document.getElementById('rvComment').value.trim();
+
+  const fail = t => { msg.textContent = t; msg.className = 'rv-form-msg bad'; };
+  if (!rvRating)      return fail('Please choose a star rating.');
+  if (!name)          return fail('Please enter your name.');
+  if (comment.length < 4) return fail('Please write a few words about the product.');
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch(`${API_BASE}/products/${productId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating: rvRating, reviewer_name: name, comment }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return fail(data.message || 'Could not submit your review.');
+
+    document.getElementById('rvForm').reset();
+    pickRating(0);
+    rvRating = 0;
+    msg.textContent = 'Thank you! Your review will appear once we have checked it.';
+    msg.className = 'rv-form-msg good';
+  } catch (err) {
+    fail('Network problem — please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit Review';
+  }
 }
 
 function switchModalShade(pid, shadeKey) {
