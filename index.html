@@ -1170,7 +1170,7 @@ function renderProducts() {
     <div class="p-card" id="card-${p.id}" onclick="openModal('${p.id}')">
       <div class="p-img-area">
         ${p.primaryImage
-          ? `<img class="p-real-img" id="cardimg-${p.id}" src="${shadeImage(p, shade)}" alt="${p.name}" />`
+          ? `<img loading="lazy" decoding="async" class="p-real-img" id="cardimg-${p.id}" src="${shadeImage(p, shade)}" alt="${p.name}" />`
           : `<canvas id="canvas-${p.id}" width="300" height="400" data-pid="${p.id}" data-type="${p.type}"></canvas>`
         }
         ${p.badge ? `<div class="p-badge">${p.badge}</div>` : ''}
@@ -1301,7 +1301,7 @@ function renderHighlights() {
     return `
     <div class="hl-card" style="cursor:pointer" onclick="openModal('${p.id}')">
       ${p.primaryImage
-        ? `<img src="${shadeImage(p, shade)}" alt="${p.name}" style="display:block;width:100%;aspect-ratio:3/4;object-fit:cover;" />`
+        ? `<img loading="lazy" decoding="async" src="${shadeImage(p, shade)}" alt="${p.name}" style="display:block;width:100%;aspect-ratio:3/4;object-fit:cover;" />`
         : `<canvas id="hlcanvas-${p.id}" width="380" height="506"></canvas>`
       }
       <div class="hl-info">
@@ -1520,7 +1520,7 @@ function renderCart() {
 
   body.innerHTML = cart.map(l => `
     <div class="cart-line">
-      ${l.img ? `<img class="cart-line-img" src="${l.img}" alt="${l.name}">` : `<div class="cart-line-img cart-line-noimg">✦</div>`}
+      ${l.img ? `<img loading="lazy" decoding="async" class="cart-line-img" src="${l.img}" alt="${l.name}">` : `<div class="cart-line-img cart-line-noimg">✦</div>`}
       <div class="cart-line-info">
         <div class="cart-line-name">${l.name}</div>
         <div class="cart-line-shade">${l.shade_name}</div>
@@ -1721,13 +1721,16 @@ function renderModalImages(p, shade) {
   // sit below the fold, so there was no visible way to reach the other photos.
   imgCol.innerHTML = `
     <div class="m-gallery" id="mGallery">
-      ${shots.map((src, i) => `<img class="m-main-img" src="${src}" alt="${p.name}" data-i="${i}" />`).join('')}
+      ${shots.map((src, i) =>
+        // Only the first is on screen; the rest load as they are swiped to.
+        `<img class="m-main-img" src="${src}" alt="${p.name}" data-i="${i}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" />`
+      ).join('')}
     </div>
     ${shots.length > 1 ? `
       <div class="m-dots" id="mDots">${shots.map((_, i) =>
         `<span class="m-dot-nav${i === 0 ? ' active' : ''}" onclick="goToImage(${i})"></span>`).join('')}</div>
       <div class="m-thumbs-row">${shots.map((src, i) =>
-        `<img class="m-thumb${i === 0 ? ' active' : ''}" src="${src}" data-i="${i}" onclick="goToImage(${i})" />`
+        `<img loading="lazy" decoding="async" class="m-thumb${i === 0 ? ' active' : ''}" src="${src}" data-i="${i}" onclick="goToImage(${i})" />`
       ).join('')}</div>` : ''}
   `;
 
