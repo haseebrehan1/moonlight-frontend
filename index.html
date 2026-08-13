@@ -380,7 +380,11 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .toast-check{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
 
 /* ── WA ── */
-.wa-float{position:fixed;bottom:28px;left:28px;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:transform .2s;z-index:8000;}
+/* Below the cart drawer (950) and the product/checkout overlays (999): at
+   z-index 8000 it floated on top of them, so a green circle sat over the
+   product page and over the checkout form — worst on a phone, where those
+   fill the screen. */
+.wa-float{position:fixed;bottom:28px;left:28px;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:transform .2s;z-index:700;}
 .wa-float:hover{transform:scale(1.1);}
 
 /* ── KEYFRAMES ── */

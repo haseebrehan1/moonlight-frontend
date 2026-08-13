@@ -58,7 +58,9 @@ footer a:hover{color:#fff;}
 .foot-links{display:flex;gap:22px;flex-wrap:wrap;}
 .foot-copy{font-size:11.5px;color:#7C7168;width:100%;text-align:center;margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);}
 
-.wa-float{position:fixed;bottom:26px;right:26px;width:54px;height:54px;border-radius:50%;background:#25D366;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(37,211,102,.4);z-index:700;}
+/* Bottom-left, matching the shop, so the button does not jump corners when a
+   customer moves between the shop and these pages. */
+.wa-float{position:fixed;bottom:28px;left:28px;width:52px;height:52px;border-radius:50%;background:#25D366;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:700;}
 
 @media(max-width:720px){
   .page-hero{padding:44px 22px 38px;}
