@@ -412,7 +412,15 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 .m-chip .chip-txt{font-size:10px;color:var(--ink2);font-weight:500;}
 .m-chip.active .chip-txt{color:var(--red);font-weight:700;}
 .m-chip .chip-oos{font-size:8px;color:var(--red);margin-left:2px;}
-.m-desc{font-size:12.5px;line-height:1.85;color:var(--ink3);margin-bottom:14px;}
+.m-desc{font-size:13px;line-height:1.75;color:var(--ink2);margin-bottom:18px;}
+.m-desc .d-p{margin-bottom:11px;}
+.m-desc .d-p:last-child{margin-bottom:0;}
+.m-desc .d-h{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin:16px 0 8px;}
+.m-desc .d-ul{list-style:none;margin:0 0 12px;padding:0;}
+.m-desc .d-ul li{position:relative;padding-left:16px;margin-bottom:6px;}
+/* A soft marker rather than a bullet — the copy already leads with emoji. */
+.m-desc .d-ul li::before{content:'';position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--red);opacity:.55;}
+.m-desc strong{color:var(--ink);font-weight:600;}
 .m-feats{margin-bottom:20px;}
 .m-feat{font-size:11.5px;color:var(--ink2);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
 .m-feat::before{content:'✓';color:var(--red);font-weight:700;font-size:11px;}
@@ -1857,7 +1865,7 @@ function renderModalContent(p, shade) {
             ${v.inStock===false ? '<span class="chip-oos">OUT</span>' : ''}
           </div>`).join('')}
       </div>
-      <div class="m-desc">${p.desc}</div>
+      <div class="m-desc">${renderDescription(p.desc, p.name)}</div>
       <div class="m-feats">
         ${p.features.map(f => `<div class="m-feat">${f}</div>`).join('')}
       </div>
@@ -1909,6 +1917,50 @@ let rvRating = 0;
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
     ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+// Descriptions are written in Markdown — headings, bold, and bullet lists.
+// Dropped straight into the page they collapsed into one block of text with
+// literal ### and ** showing, because HTML ignores newlines. This renders the
+// small subset actually used, escaping the text first so nothing in a
+// description can inject markup.
+function renderDescription(text, productName) {
+  if (!text) return '';
+  const inline = s => s
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+
+  const lines = esc(text).replace(/\r\n?/g, '\n').split('\n');
+  let html = '', inList = false;
+  const closeList = () => { if (inList) { html += '</ul>'; inList = false; } };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { closeList(); continue; }
+
+    const heading = line.match(/^#{2,4}\s+(.*)$/);
+    if (heading) {
+      closeList();
+      const title = heading[1].trim();
+      // The product's name is already displayed above the description, so a
+      // heading repeating it would show the same words twice.
+      if (productName && title.toLowerCase() === String(productName).trim().toLowerCase()) continue;
+      html += `<h4 class="d-h">${inline(title)}</h4>`;
+      continue;
+    }
+
+    const bullet = line.match(/^[*\-•]\s+(.*)$/);
+    if (bullet) {
+      if (!inList) { html += '<ul class="d-ul">'; inList = true; }
+      html += `<li>${inline(bullet[1])}</li>`;
+      continue;
+    }
+
+    closeList();
+    html += `<p class="d-p">${inline(line)}</p>`;
+  }
+  closeList();
+  return html;
 }
 
 function scrollToReviews(e) {
