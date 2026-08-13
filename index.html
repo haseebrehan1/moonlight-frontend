@@ -1584,8 +1584,23 @@ function removeLine(variantId) {
 }
 
 // ── CART DRAWER ────────────────────────────────────────
-function openCart()  { renderCart(); document.getElementById('cartDrawer').classList.add('open'); document.getElementById('drawerBackdrop').classList.add('show'); document.body.style.overflow = 'hidden'; }
-function closeCart() { document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('show'); document.body.style.overflow = ''; }
+function openCart(opts = {}) {
+  renderCart();
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('drawerBackdrop').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  if (!opts.fromUrl) navigate('/cart', 'Your Cart — Moonlight Accessories');
+}
+
+// fromHistory is set when the back button caused this, so we do not push
+// another entry on top of the one the visitor is trying to leave.
+function closeCart(fromHistory) {
+  const wasOpen = document.getElementById('cartDrawer').classList.contains('open');
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('drawerBackdrop').classList.remove('show');
+  document.body.style.overflow = '';
+  if (wasOpen && !fromHistory && location.pathname === '/cart') clearProductUrl();
+}
 
 function renderCart() {
   const body = document.getElementById('cartBody');
@@ -1631,9 +1646,13 @@ function renderCart() {
 }
 
 // ── CHECKOUT ───────────────────────────────────────────
-function openCheckout() {
-  if (!cart.length) { showToast('Your cart is empty'); return; }
-  closeCart();
+function openCheckout(opts = {}) {
+  if (!cart.length) {
+    showToast('Your cart is empty');
+    if (opts.fromUrl) navigate('/', SHOP_TITLE, { replace: true });
+    return;
+  }
+  closeCart(true);
   document.getElementById('checkoutOverlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
   renderCheckoutSummary();
@@ -1641,13 +1660,16 @@ function openCheckout() {
   document.getElementById('coDone').style.display = 'none';
   document.getElementById('coError').style.display = 'none';
   trackTikTokCart('InitiateCheckout');
-  if (typeof trackVisit === 'function') trackVisit('checkout_started');
+  if (!opts.fromUrl) navigate('/checkout', 'Checkout — Moonlight Accessories', { event: 'checkout_started' });
+  else if (typeof trackVisit === 'function') trackVisit('checkout_started');
   setTimeout(() => document.getElementById('coName')?.focus(), 100);
 }
 
-function closeCheckout() {
+function closeCheckout(fromHistory) {
+  const wasOpen = document.getElementById('checkoutOverlay').style.display === 'flex';
   document.getElementById('checkoutOverlay').style.display = 'none';
   document.body.style.overflow = '';
+  if (wasOpen && !fromHistory && /^\/(checkout|order)/.test(location.pathname)) clearProductUrl();
 }
 
 function handleCheckoutBgClick(e) {
@@ -1716,10 +1738,14 @@ async function submitOrder() {
     // Identify before the order event so TikTok can match this customer.
     await identifyCustomer(phone, email);
     trackTikTokCart(ORDER_EVENT, order.order_number);
-    if (typeof trackVisit === 'function') trackVisit('ordered');
 
     document.getElementById('coForm').style.display = 'none';
     document.getElementById('coDone').style.display = '';
+    // Replaces /checkout rather than stacking on it, so pressing back from the
+    // confirmation cannot reopen a checkout form whose cart is now empty.
+    navigate('/order/' + (order.order_number || 'confirmed'),
+             'Order Confirmed — Moonlight Accessories',
+             { replace: true, event: 'ordered' });
     document.getElementById('coOrderNum').textContent = order.order_number || '—';
     document.getElementById('coOrderTotal').textContent = money(order.total ?? cartTotal());
     document.getElementById('coWaWrap').innerHTML = WHATSAPP
@@ -1783,37 +1809,58 @@ const SHOP_TITLE = document.title;
 
 function productUrl(p) { return '/product/' + (p.slug || p.id); }
 
-function setProductUrl(p, replace) {
-  const url = productUrl(p);
-  if (location.pathname === url) return;
-  history[replace ? 'replaceState' : 'pushState']({ pid: p.id }, '', url);
-  document.title = `${p.name} — Moonlight Accessories`;
+// Every address change goes through here, so the title and the visitor
+// tracking stay in step with what is actually on screen.
+function navigate(url, title, opts = {}) {
+  if (location.pathname !== url) {
+    history[opts.replace ? 'replaceState' : 'pushState']({}, '', url);
+  }
+  document.title = title;
+  if (typeof trackVisit === 'function') trackVisit(opts.event);
 }
 
 function clearProductUrl() {
   if (location.pathname === '/') return;
-  history.pushState({}, '', '/');
-  document.title = SHOP_TITLE;
+  navigate('/', SHOP_TITLE);
 }
 
-// Someone landing straight on a product link, or using the back button.
-function openProductFromUrl(replace) {
-  const m = location.pathname.match(/^\/product\/([^/]+)\/?$/);
-  if (!m) { if (modalCurrentPid) closeModal(true); return; }
-  const slug = decodeURIComponent(m[1]);
-  const p = PRODUCTS.find(x => x.slug === slug || x.id === slug);
-  if (p) openModal(p.id, { fromUrl: true, replace: replace });
-  else { history.replaceState({}, '', '/'); document.title = SHOP_TITLE; }
+// Opens whatever the current address says should be open. Used on first load,
+// and every time the back or forward button moves between our own entries.
+function syncFromUrl(replace) {
+  const path = location.pathname;
+
+  const product = path.match(/^\/product\/([^/]+)\/?$/);
+  if (product) {
+    const slug = decodeURIComponent(product[1]);
+    const p = PRODUCTS.find(x => x.slug === slug || x.id === slug);
+    if (p) { closeCart(true); closeCheckout(true); openModal(p.id, { replace }); }
+    else navigate('/', SHOP_TITLE, { replace: true });   // link to a product that no longer exists
+    return;
+  }
+
+  if (path === '/cart')     { closeModal(true); closeCheckout(true); openCart({ fromUrl: true }); return; }
+  if (path === '/checkout') { closeModal(true); openCheckout({ fromUrl: true }); return; }
+
+  // An order confirmation only makes sense straight after ordering. Landing on
+  // one later — or after a refresh — should not try to show someone's receipt.
+  if (/^\/order\//.test(path)) {
+    if (document.getElementById('coDone')?.style.display === '') return;
+    navigate('/', SHOP_TITLE, { replace: true });
+  }
+
+  closeModal(true);
+  closeCart(true);
+  closeCheckout(true);
 }
 
-window.addEventListener('popstate', () => openProductFromUrl(true));
+window.addEventListener('popstate', () => syncFromUrl(true));
 
 function openModal(pid, opts = {}) {
   const p = PRODUCTS.find(x => x.id === pid);
   if (!p) return;
   modalCurrentPid = pid;
-  setProductUrl(p, opts.replace);
-  if (typeof trackVisit === 'function') trackVisit('view_product');
+  navigate(productUrl(p), `${p.name} — Moonlight Accessories`,
+           { replace: opts.replace, event: 'view_product' });
   modalCurrentShade = cardShadeState[pid] || p.defaultShade;
 
   const overlay = document.getElementById('modalOverlay');
@@ -2145,7 +2192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initFilters();
   initShadePicker();
   // Someone may have arrived on a product link straight from an ad.
-  openProductFromUrl(true);
+  syncFromUrl(true);
 });
 </script>
 </body>
