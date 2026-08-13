@@ -50,6 +50,13 @@ button{cursor:pointer;font-family:'DM Sans',sans-serif;}
 
 /* ── ANNOUNCEMENT ── */
 .ann-bar{background:var(--ink);color:#fff;text-align:center;padding:10px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;}
+/* Sale variant — deliberately louder than the standard notice bar. */
+.ann-bar.sale{background:linear-gradient(90deg,#01411C 0%,#046A38 50%,#01411C 100%);letter-spacing:1.6px;}
+.ann-bar.sale b{color:#FFD700;font-weight:700;letter-spacing:2px;}
+.ann-bar.sale .flag{font-size:13px;letter-spacing:0;}
+@media(max-width:600px){
+  .ann-bar.sale{font-size:9.5px;letter-spacing:.8px;padding:9px 12px;line-height:1.6;}
+}
 .ann-bar span{color:var(--gold);}
 
 /* ── NAVBAR ── */
@@ -171,6 +178,13 @@ nav{background:var(--white);border-bottom:1px solid var(--border);position:stick
 .p-stars{color:var(--gold);font-size:12px;letter-spacing:1px;margin-bottom:8px;}
 .p-stars span{color:var(--ink3);font-size:11px;font-family:'DM Sans',sans-serif;margin-left:4px;}
 .p-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+/* Original price and the saving, shown beside whichever price block is used */
+.was-row{display:flex;align-items:center;gap:7px;margin-top:2px;flex-wrap:wrap;}
+.was{font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--ink3);text-decoration:line-through;}
+.off-tag{background:var(--red);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.8px;padding:2px 7px;border-radius:2px;white-space:nowrap;}
+.m-price + .was-row{margin-top:-14px;margin-bottom:20px;}
+.m-price + .was-row .was{font-size:16px;}
+.m-price + .was-row .off-tag{font-size:11px;padding:3px 9px;}
 .p-price{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);}
 .p-price .curr{font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;margin-right:2px;color:var(--ink2);}
 .p-add{width:38px;height:38px;background:var(--red);color:#fff;border:none;font-size:22px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;line-height:1;}
@@ -440,8 +454,8 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 <body>
 
 <!-- ANNOUNCEMENT BAR -->
-<div class="ann-bar">
-  <span>✦</span> Free delivery on orders above Rs.5,000 &nbsp;|&nbsp; Premium Synthetic Hair Extensions &nbsp;|&nbsp; <span>WhatsApp Orders Welcome</span>
+<div class="ann-bar sale"><!-- SALE BANNER: edit this line (and the same line in about/returns/privacy.html) to change or end the sale -->
+  <span class="flag">🇵🇰</span> <b>AZADI SALE IS LIVE</b> &nbsp;—&nbsp; FLAT 50% OFF EVERYTHING &nbsp;|&nbsp; Free delivery over Rs.5,000 &nbsp;|&nbsp; Cash on Delivery
 </div>
 
 <!-- NAVBAR -->
@@ -924,6 +938,7 @@ async function loadProducts() {
         type: p.type,
         badge: p.badge,
         price: parseFloat(p.price),
+        compare_price: p.compare_price ? parseFloat(p.compare_price) : null,
         stars: Math.min(5, Math.round(p.avg_rating)) || 5,
         reviews: p.review_count || 0,
         featured: p.is_featured,
@@ -1194,7 +1209,7 @@ function renderProducts() {
         <div class="p-shade-label" id="slabel-${p.id}">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
         <div class="p-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}<span>(${p.reviews})</span></div>
         <div class="p-bottom">
-          <div class="p-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+          ${priceHtml(p, 'p-price')}
           <button class="p-add${!inStock?' oos':''}" id="padd-${p.id}"
             onclick="event.stopPropagation();${inStock ? `addToCart('${p.id}','${shade}');openCart()` : ''}"
             title="${inStock ? 'Add to cart' : 'Out of stock'}">
@@ -1311,7 +1326,7 @@ function renderHighlights() {
       <div class="hl-info">
         <div class="hl-tag">${p.badge || 'Featured'} · ${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
         <div class="hl-name">${p.name}</div>
-        <div class="hl-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+        ${priceHtml(p, 'hl-price')}
         <button class="hl-add" onclick="event.stopPropagation();addToCart('${p.id}','${shade}')">Add to Cart</button>
       </div>
     </div>`;
@@ -1389,6 +1404,26 @@ function drawHero() {
 // across ViewContent, AddToCart and the order event or TikTok cannot tie them
 // together into a funnel.
 const contentId = p => p.slug || p.id;
+
+// ── PRICING ────────────────────────────────────────────
+// compare_price is the original price. It only counts as a discount when it is
+// genuinely higher than what we charge, so a stale or mistaken value can never
+// show "0% OFF" or a negative saving. The admin panel uses the same formula.
+function discountPct(p) {
+  const price = p.price, cmp = parseFloat(p.compare_price);
+  if (!cmp || !price || cmp <= price) return null;
+  return Math.round((cmp - price) / cmp * 100);
+}
+
+// The price block used on cards, the featured strip and the product page.
+function priceHtml(p, cls) {
+  const pct = discountPct(p);
+  return `<div class="${cls}"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>` +
+    (pct ? `<div class="was-row">
+        <s class="was">Rs. ${parseFloat(p.compare_price).toLocaleString()}</s>
+        <span class="off-tag">${pct}% OFF</span>
+      </div>` : '');
+}
 
 // Reports a product event to the TikTok pixel so ads can be attributed and
 // optimised. Guarded and wrapped: if the pixel is blocked, ad-blocked or slow
@@ -1773,7 +1808,7 @@ function renderModalContent(p, shade) {
       <div class="m-shade-active">${(SHADES[shade]||SHADES[Object.keys(SHADES)[0]]).name}</div>
       <div class="m-stars">${'★'.repeat(p.stars)}${'☆'.repeat(5-p.stars)}</div>
       <div class="m-reviews">${p.reviews > 0 ? p.reviews + ' verified reviews' : 'Be the first to review'}</div>
-      <div class="m-price"><span class="curr">Rs. </span>${p.price.toLocaleString()}</div>
+      ${priceHtml(p, 'm-price')}
       <div class="m-shade-label">Select Shade</div>
       <div class="m-shade-chips">
         ${p.variants.map(v => `
